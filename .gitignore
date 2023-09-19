@@ -1,5 +1,4 @@
 /bin/
-.gradle/
 /build/
 /.settings/
 /run/
@@ -7,3 +6,10 @@
 # Class files
 **/*.class
 
+# IntelliJ 
+.idea/
+
+# Gradle
+.gradle/
+gradlew*
+gradle/
