@@ -1,5 +1,4 @@
 plugins {
-  
 	// For runnable JARs
 	id 'application'
  	id 'distribution'
@@ -17,14 +16,15 @@ repositories {
 
 
 dependencies {
-    testImplementation "junit:junit:4.11" 	
+    testImplementation 'junit:junit:4.13.1'
 
-	//! Add your dependencies here    
+    //! Add your dependencies here    
 }
 
 // Add JARs in folder 'libs' as dependencies
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'org.yaml:snakeyaml:2.0'
 }
 
 
