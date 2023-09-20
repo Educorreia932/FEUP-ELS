@@ -1,44 +1,76 @@
 package pt.up.fe.els2023.table;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Table {
-    private final LinkedHashMap<String, Column<?>> columns = new LinkedHashMap<>();
+import javafx.util.Pair;
 
-    public Table() {
+import org.apache.commons.collections4.map.ListOrderedMap;
+
+public class Table {
+    private final ListOrderedMap<String, Column<?>> columns = new ListOrderedMap<>();
+
+    @SafeVarargs
+    public Table(Pair<String, TabularDataType>... columnEntries) {
+        for (Pair<String, TabularDataType> entry : columnEntries) {
+            String header = entry.getKey();
+            TabularDataType dataType = entry.getValue();
+
+            if (header != null && dataType != null) {
+                Column<?> column = new Column<>(header);
+                
+                columns.put(column.getHeader(), column);
+            } 
+            
+            else {
+                throw new IllegalArgumentException("Both key and data type must not be null.");
+            }
+        }
     }
 
-    List<Object> getRow(int index) {
+    public List<Object> getRow(int index) {
         return columns.values().stream()
             .map(column -> column.getElement(index))
             .collect(Collectors.toList());
     }
 
-    Column<?> getColumn(String key) {
-        return columns.get(key);
+    public Column<?> getColumn(String header) {
+        return columns.get(header);
     }
 
-    void addRow(List<?> row) {
+    public Column<?> getColumn(int index) {
+        return columns.getValue(index);
+    }
+
+    public void addRow(Object... row) {
+        for (int i = 0; i < columns.size(); i++) {
+            Column<?> column = getColumn(i);
+
+            column.addElement(row[i]);
+        }
+    }
+
+    public void addColumn(String header, Object... elements) {
+        Column<?> column = new Column<>(header, elements);
+        
+        columns.put(header, column);
+    }
+
+    public void removeRow(int index) {
         columns.forEach((key, column) -> {
-            column.addElement(row);
+            column.removeElement(index);
         });
     }
 
-    void addColumn(Column<?> column) {
-        columns.put(column.getKey(), column);
-    }
-
-    void removeRow(int index) {
-        // TODO:
-    }
-
-    void removeColumn(String key) {
+    public void removeColumn(String key) {
         columns.remove(key);
     }
 
-    void renameColumn() {
-        // TODO:
+    public int numRows() {
+        return getColumn(0).numElements();
+    }
+
+    public int numColumns() {
+        return columns.size();
     }
 }
