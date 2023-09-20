@@ -1,7 +1,8 @@
 plugins {
-	// For runnable JARs
-	id 'application'
- 	id 'distribution'
+    // For runnable JARs
+    id 'application'
+    id 'distribution'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
 }
 
 
@@ -14,6 +15,10 @@ repositories {
     mavenCentral()
 }
 
+javafx {
+    version = "20"
+    modules = ['javafx.base']
+}
 
 dependencies {
     testImplementation 'junit:junit:4.13.1'
@@ -25,27 +30,28 @@ dependencies {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'org.yaml:snakeyaml:2.0'
+    implementation 'org.apache.commons:commons-collections4:4.0'
 }
 
 
 // Project sources
 sourceSets {
-   main {
-      java {
-         srcDir 'src'               
-      }
-   }
-	
-   test {
-      java {
-         srcDir 'test'
-      }
-	  
-	  resources {
-		srcDir 'test'
-	  }
-   }
-    
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+
+    test {
+        java {
+            srcDir 'test'
+        }
+
+        resources {
+            srcDir 'test'
+        }
+    }
+
 }
 
 // Entry point of the program
