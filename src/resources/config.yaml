@@ -1,23 +1,19 @@
 source:
   - file: decision_tree_1.yaml
-    table: table_1
   - file: decision_tree_2.yaml
-    table: table_2
   - file: decision_tree_3.yaml
-    table: table_3
 commands:
   - select:
       - - from: params
           fields:
             - name: criterion
               rename: Criterion
-              table: table_1
             - name: splitter
               rename: Splitter
         - metadata: filename
           rename: Filename
   - merge:
-      - source:
+      - sources:
           - table_1
           - table_2
           - table_3
