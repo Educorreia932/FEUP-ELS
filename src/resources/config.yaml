@@ -4,14 +4,18 @@ source:
   - file: decision_tree_3.yaml
 commands:
   - select:
-      - from: params
+      - !fromSelection
+        from: params
         keys:
           - name: criterion
             rename: Criterion
           - name: splitter
             rename: Splitter
-#      - metadata: filename
-#        rename: Filename
+
+      - !metadataSelection
+        metadata: filename
+        rename: Filename
+        
 #  - merge:
 #      - sources:
 #          - table_1

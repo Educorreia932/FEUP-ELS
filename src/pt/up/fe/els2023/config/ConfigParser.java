@@ -1,12 +1,14 @@
 package pt.up.fe.els2023.config;
 
-import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
+import org.yaml.snakeyaml.resolver.Resolver;
 import pt.up.fe.els2023.config.fields.*;
-import pt.up.fe.els2023.config.fields.commands.CommandField;
-import pt.up.fe.els2023.config.fields.commands.SelectEntryField;
-import pt.up.fe.els2023.config.fields.commands.SelectField;
+import pt.up.fe.els2023.config.fields.commands.*;
 import pt.up.fe.els2023.instructions.*;
 
 import java.io.InputStream;
@@ -21,8 +23,15 @@ public class ConfigParser {
             .getClassLoader()
             .getResourceAsStream(filename);
 
-        LoaderOptions loaderOptions = new LoaderOptions();
-        Yaml yaml = new Yaml(new Constructor(Config.class, loaderOptions));
+        Constructor constructor = new Constructor(Config.class);
+
+        constructor.addTypeDescription(
+            new TypeDescription(FromSelectionField.class, new Tag("!fromSelection")));
+
+        constructor.addTypeDescription(
+            new TypeDescription(MetadataSelectionField.class, new Tag("!metadataSelection")));
+
+        Yaml yaml = new Yaml(constructor);
         Config config = yaml.load(inputStream);
 
         List<FileField> source = config.source;
@@ -57,12 +66,26 @@ public class ConfigParser {
         return instructions;
     }
 
-    private List<SelectInstruction> parseSelect(List<SelectEntryField> selectEntries) {
+    private List<SelectInstruction> parseSelect(List<SelectionField> selectEntries) {
         List<SelectInstruction> instructions = new ArrayList<>();
-        
-        for (SelectEntryField entry : selectEntries) {
-            SelectInstruction instruction = new SelectInstruction(entry.from, entry.keys);
-            
+
+        for (SelectionField entry : selectEntries) {
+            SelectInstruction instruction = null;
+
+            if (entry instanceof FromSelectionField) {
+                instruction = new SelectInstruction(
+                    ((FromSelectionField) entry).from, 
+                    ((FromSelectionField) entry).keys
+                );
+            }
+
+            else if (entry instanceof MetadataSelectionField) {
+                instruction = new SelectInstruction(
+                    ((MetadataSelectionField) entry).metadata,
+                    ((MetadataSelectionField) entry).rename
+                );
+            }
+
             instructions.add(instruction);
         }
 

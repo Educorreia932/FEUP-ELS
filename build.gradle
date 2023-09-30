@@ -29,7 +29,7 @@ dependencies {
 // Add JARs in folder 'libs' as dependencies
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'org.yaml:snakeyaml:2.0'
+    implementation 'org.yaml:snakeyaml:1.28'
     implementation 'org.apache.commons:commons-collections4:4.0'
 }
 
