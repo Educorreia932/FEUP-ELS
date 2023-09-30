@@ -2,24 +2,21 @@ package pt.up.fe.els2023.config;
 
 import java.util.List;
 
-class File {
-    private String file;
-}
-
 interface Command {
-    
 }
 
 class Select implements Command {
     private List<SelectEntry> entries;
+
+    public List<SelectEntry> getEntries() {
+        return entries;
+    }
 }
 
-class SelectEntry {
-    private List<FromSelection> fromSelection;
-    private MetadataSelection metadataSelection;
+interface SelectEntry {
 }
 
-class FromSelection {
+class FromSelection implements SelectEntry {
     private String from;
     private List<Field> fields;
 }
@@ -29,46 +26,50 @@ class Field {
     private String rename;
 }
 
-class MetadataSelection {
+class MetadataSelection implements SelectEntry {
     private String metadata;
     private String rename;
 }
 
 class Merge implements Command {
     private List<MergeEntry> entries;
+
+    public List<MergeEntry> getEntries() {
+        return entries;
+    }
 }
 
 class MergeEntry {
     private List<String> sources;
     private String target;
+
+    public List<String> getSources() {
+        return sources;
+    }
+
+    public String getTarget() {
+        return target;
+    }
 }
 
-class FileTable extends File {
+class FileTable extends FileEntry {
     private String table;
 }
 
-class Source {
-    private List<File> files;
-}
-
-class Target {
-    private List<FileTable> files;
-}
-
 public class Config {
-    private Source source;
-    private List<Command> commands;
-    private Target target;
+    private List<FileEntry> source;
+/*    private List<Command> commands;
+    private List<FileTable> target;*/
 
-    public Source getSource() {
+    public List<FileEntry> getSource() {
         return source;
     }
 
-    public List<Command> getCommands() {
+/*    public List<Command> getCommands() {
         return commands;
     }
 
-    public Target getTarget() {
+    public List<FileTable> getTarget() {
         return target;
-    }
+    }*/
 }
