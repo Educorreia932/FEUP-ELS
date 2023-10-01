@@ -1,0 +1,23 @@
+source:
+  - file: decision_tree_1.yaml
+  - file: decision_tree_2.yaml
+  - file: decision_tree_3.yaml
+commands:
+  - select:
+      - from: params
+        keys:
+          - name: criterion
+            rename: Criterion
+          - name: splitter
+            rename: Splitter
+#      - metadata: filename
+#        rename: Filename
+#  - merge:
+#      - sources:
+#          - table_1
+#          - table_2
+#          - table_3
+#        target: table_4
+target:
+  - file: output.csv
+    table: table_4

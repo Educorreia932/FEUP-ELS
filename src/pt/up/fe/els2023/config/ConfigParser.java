@@ -8,6 +8,7 @@ import pt.up.fe.els2023.config.fields.commands.CommandField;
 import pt.up.fe.els2023.config.fields.commands.SelectEntryField;
 import pt.up.fe.els2023.config.fields.commands.SelectField;
 import pt.up.fe.els2023.instructions.*;
+import pt.up.fe.els2023.utils.FileUtils;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class ConfigParser {
         List<SelectField> commands = config.commands;
         List<FileField> target = config.target;
 
+        FileUtils.setFilesRelativePath(filename, source);
         instructions.addAll(parseSource(source));
 
         for (CommandField command : commands) {
@@ -50,7 +52,7 @@ public class ConfigParser {
         for (FileField entry : files) {
             String filePath = entry.file;
             LoadInstruction instruction = new LoadInstruction(filePath);
-
+            //instruction.execute();
             instructions.add(instruction);
         }
 
