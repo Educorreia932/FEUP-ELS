@@ -47,8 +47,8 @@ public class ConfigParser {
             if (command instanceof SelectField)
                 instructions.addAll(parseSelect(((SelectField) command).select));
 
-//            else if (command instanceof Merge)
-//                instructions.addAll(parseCommand((Merge) command));
+            else if (command instanceof MergeField)
+                instructions.addAll(parseMerge(((MergeField) command).merge));
         }
 
         instructions.addAll(parseTarget(target));
@@ -77,7 +77,7 @@ public class ConfigParser {
 
             if (entry instanceof FromSelectionField) {
                 instruction = new SelectInstruction(
-                    ((FromSelectionField) entry).from, 
+                    ((FromSelectionField) entry).from,
                     ((FromSelectionField) entry).keys
                 );
             }
@@ -95,21 +95,20 @@ public class ConfigParser {
         return instructions;
     }
 
-//    private List<MergeInstruction> parseCommand(Merge merge) {
-//        List<MergeInstruction> instructions = new ArrayList<>();
-//        List<MergeEntry> entries = merge.getEntries();
-//
-//        for (MergeEntry entry : entries) {
-//            MergeInstruction instruction = new MergeInstruction(
-//                entry.getSources(),
-//                entry.getTarget()
-//            );
-//
-//            instructions.add(instruction);
-//        }
-//
-//        return instructions;
-//    }
+    private List<MergeInstruction> parseMerge(List<MergeEntryField> mergeEntries) {
+        List<MergeInstruction> instructions = new ArrayList<>();
+
+        for (MergeEntryField entry : mergeEntries) {
+            MergeInstruction instruction = new MergeInstruction(
+                entry.sources,
+                entry.target
+            );
+
+            instructions.add(instruction);
+        }
+
+        return instructions;
+    }
 
     private List<SaveInstruction> parseTarget(List<FileField> files) {
         List<SaveInstruction> instructions = new ArrayList<>();
