@@ -6,8 +6,8 @@ import static org.junit.Assert.assertEquals;
 
 import javafx.util.Pair;
 
-import pt.up.fe.els2023.table.Table;
-import static pt.up.fe.els2023.table.TabularDataType.*;
+import pt.up.fe.els2023.model.table.Table;
+import static pt.up.fe.els2023.model.table.TabularDataType.*;
 
 public class TableTest {
     private Table table;

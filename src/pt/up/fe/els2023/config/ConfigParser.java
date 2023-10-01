@@ -7,13 +7,17 @@ import org.yaml.snakeyaml.nodes.Tag;
 import pt.up.fe.els2023.config.fields.*;
 import pt.up.fe.els2023.config.fields.commands.*;
 import pt.up.fe.els2023.instructions.*;
+import pt.up.fe.els2023.model.DataSingleton;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigParser {
+    private DataSingleton data = new DataSingleton();
+    
     public List<Instruction> parse(String filename) {
+        
         List<Instruction> instructions = new ArrayList<>();
 
         InputStream inputStream = this.getClass()

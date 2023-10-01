@@ -1,4 +1,4 @@
-package pt.up.fe.els2023.table;
+package pt.up.fe.els2023.model.table;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,10 +19,10 @@ public class Table {
 
             if (header != null && dataType != null) {
                 Column<?> column = new Column<>(header);
-                
+
                 columns.put(column.getHeader(), column);
-            } 
-            
+            }
+
             else {
                 throw new IllegalArgumentException("Both key and data type must not be null.");
             }
@@ -53,7 +53,7 @@ public class Table {
 
     public void addColumn(String header, Object... elements) {
         Column<?> column = new Column<>(header, elements);
-        
+
         columns.put(header, column);
     }
 
