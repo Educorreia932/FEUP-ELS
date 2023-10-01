@@ -1,33 +1,48 @@
 package pt.up.fe.els2023.config;
 
-import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.nodes.Tag;
 import pt.up.fe.els2023.config.fields.*;
-import pt.up.fe.els2023.config.fields.commands.CommandField;
-import pt.up.fe.els2023.config.fields.commands.SelectEntryField;
-import pt.up.fe.els2023.config.fields.commands.SelectField;
+import pt.up.fe.els2023.config.fields.commands.*;
 import pt.up.fe.els2023.instructions.*;
-import pt.up.fe.els2023.utils.FileUtils;
+import pt.up.fe.els2023.model.DataSingleton;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigParser {
+    private DataSingleton data = new DataSingleton();
+    
     public List<Instruction> parse(String filename) {
+        
         List<Instruction> instructions = new ArrayList<>();
 
         InputStream inputStream = this.getClass()
             .getClassLoader()
             .getResourceAsStream(filename);
 
-        LoaderOptions loaderOptions = new LoaderOptions();
-        Yaml yaml = new Yaml(new Constructor(Config.class, loaderOptions));
+        Constructor constructor = new Constructor(Config.class);
+
+        constructor.addTypeDescription(
+            new TypeDescription(SelectField.class, new Tag("!select")));
+
+        constructor.addTypeDescription(
+            new TypeDescription(MergeField.class, new Tag("!merge")));
+
+        constructor.addTypeDescription(
+            new TypeDescription(FromSelectionField.class, new Tag("!fromSelection")));
+
+        constructor.addTypeDescription(
+            new TypeDescription(MetadataSelectionField.class, new Tag("!metadataSelection")));
+
+        Yaml yaml = new Yaml(constructor);
         Config config = yaml.load(inputStream);
 
         List<FileField> source = config.source;
-        List<SelectField> commands = config.commands;
+        List<CommandField> commands = config.commands;
         List<FileField> target = config.target;
 
         FileUtils.setFilesRelativePath(filename, source);
@@ -37,8 +52,8 @@ public class ConfigParser {
             if (command instanceof SelectField)
                 instructions.addAll(parseSelect(((SelectField) command).select));
 
-//            else if (command instanceof Merge)
-//                instructions.addAll(parseCommand((Merge) command));
+            else if (command instanceof MergeField)
+                instructions.addAll(parseMerge(((MergeField) command).merge));
         }
 
         instructions.addAll(parseTarget(target));
@@ -61,31 +76,44 @@ public class ConfigParser {
 
     private List<SelectInstruction> parseSelect(List<SelectEntryField> selectEntries) {
         List<SelectInstruction> instructions = new ArrayList<>();
-        
+
         for (SelectEntryField entry : selectEntries) {
-            SelectInstruction instruction = new SelectInstruction(entry.from, entry.keys);
-            
+            SelectInstruction instruction = null;
+
+            if (entry instanceof FromSelectionField) {
+                instruction = new SelectInstruction(
+                    ((FromSelectionField) entry).from,
+                    ((FromSelectionField) entry).keys
+                );
+            }
+
+            else if (entry instanceof MetadataSelectionField) {
+                instruction = new SelectInstruction(
+                    ((MetadataSelectionField) entry).metadata,
+                    ((MetadataSelectionField) entry).rename
+                );
+            }
+
             instructions.add(instruction);
         }
 
         return instructions;
     }
 
-//    private List<MergeInstruction> parseCommand(Merge merge) {
-//        List<MergeInstruction> instructions = new ArrayList<>();
-//        List<MergeEntry> entries = merge.getEntries();
-//
-//        for (MergeEntry entry : entries) {
-//            MergeInstruction instruction = new MergeInstruction(
-//                entry.getSources(),
-//                entry.getTarget()
-//            );
-//
-//            instructions.add(instruction);
-//        }
-//
-//        return instructions;
-//    }
+    private List<MergeInstruction> parseMerge(List<MergeEntryField> mergeEntries) {
+        List<MergeInstruction> instructions = new ArrayList<>();
+
+        for (MergeEntryField entry : mergeEntries) {
+            MergeInstruction instruction = new MergeInstruction(
+                entry.sources,
+                entry.target
+            );
+
+            instructions.add(instruction);
+        }
+
+        return instructions;
+    }
 
     private List<SaveInstruction> parseTarget(List<FileField> files) {
         List<SaveInstruction> instructions = new ArrayList<>();

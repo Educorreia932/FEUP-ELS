@@ -1,4 +1,4 @@
-package pt.up.fe.els2023.table;
+package pt.up.fe.els2023.model.table;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,6 +8,7 @@ import javafx.util.Pair;
 import org.apache.commons.collections4.map.ListOrderedMap;
 
 public class Table {
+    private String name;
     private final ListOrderedMap<String, Column<?>> columns = new ListOrderedMap<>();
 
     @SafeVarargs
@@ -18,10 +19,10 @@ public class Table {
 
             if (header != null && dataType != null) {
                 Column<?> column = new Column<>(header);
-                
+
                 columns.put(column.getHeader(), column);
-            } 
-            
+            }
+
             else {
                 throw new IllegalArgumentException("Both key and data type must not be null.");
             }
@@ -52,7 +53,7 @@ public class Table {
 
     public void addColumn(String header, Object... elements) {
         Column<?> column = new Column<>(header, elements);
-        
+
         columns.put(header, column);
     }
 
@@ -72,5 +73,13 @@ public class Table {
 
     public int numColumns() {
         return columns.size();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
