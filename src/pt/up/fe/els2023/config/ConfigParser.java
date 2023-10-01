@@ -1,12 +1,9 @@
 package pt.up.fe.els2023.config;
 
-import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
-import org.yaml.snakeyaml.resolver.Resolver;
 import pt.up.fe.els2023.config.fields.*;
 import pt.up.fe.els2023.config.fields.commands.*;
 import pt.up.fe.els2023.instructions.*;
@@ -26,6 +23,12 @@ public class ConfigParser {
         Constructor constructor = new Constructor(Config.class);
 
         constructor.addTypeDescription(
+            new TypeDescription(SelectField.class, new Tag("!select")));
+
+        constructor.addTypeDescription(
+            new TypeDescription(MergeField.class, new Tag("!merge")));
+
+        constructor.addTypeDescription(
             new TypeDescription(FromSelectionField.class, new Tag("!fromSelection")));
 
         constructor.addTypeDescription(
@@ -35,7 +38,7 @@ public class ConfigParser {
         Config config = yaml.load(inputStream);
 
         List<FileField> source = config.source;
-        List<SelectField> commands = config.commands;
+        List<CommandField> commands = config.commands;
         List<FileField> target = config.target;
 
         instructions.addAll(parseSource(source));
@@ -66,10 +69,10 @@ public class ConfigParser {
         return instructions;
     }
 
-    private List<SelectInstruction> parseSelect(List<SelectionField> selectEntries) {
+    private List<SelectInstruction> parseSelect(List<SelectEntryField> selectEntries) {
         List<SelectInstruction> instructions = new ArrayList<>();
 
-        for (SelectionField entry : selectEntries) {
+        for (SelectEntryField entry : selectEntries) {
             SelectInstruction instruction = null;
 
             if (entry instanceof FromSelectionField) {
