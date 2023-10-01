@@ -45,6 +45,7 @@ public class ConfigParser {
         List<CommandField> commands = config.commands;
         List<FileField> target = config.target;
 
+        FileUtils.setFilesRelativePath(filename, source);
         instructions.addAll(parseSource(source));
 
         for (CommandField command : commands) {
@@ -65,7 +66,7 @@ public class ConfigParser {
 
         for (FileField entry : files) {
             String filePath = entry.file;
-            LoadInstruction instruction = new LoadInstruction(filePath);
+            LoadInstruction instruction = new LoadInstruction(data, filePath);
 
             instructions.add(instruction);
         }

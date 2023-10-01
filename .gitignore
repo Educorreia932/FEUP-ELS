@@ -2,6 +2,7 @@
 /build/
 /.settings/
 /run/
+/out/
 
 # Class files
 **/*.class
