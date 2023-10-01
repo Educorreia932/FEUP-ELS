@@ -2,6 +2,7 @@ package pt.up.fe.els2023.model;
 
 import pt.up.fe.els2023.model.table.Table;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.Map;
 public class DataSingleton {
     // TODO: Change to a table of tables (?)
     private final Map<String, Table> tables = new HashMap<>();
-    private List<Map<String, Object>> filesData;
+    private final List<Map<String, Object>> filesData = new ArrayList<>();
 
     public DataSingleton() {
     }
@@ -26,7 +27,7 @@ public class DataSingleton {
         return filesData;
     }
 
-    public void setFilesData(List<Map<String, Object>> filesData) {
-        this.filesData = filesData;
+    public void addFilesData(Map<String, Object> fileData) {
+        this.filesData.add(fileData);
     }
 }

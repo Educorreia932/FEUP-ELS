@@ -66,8 +66,8 @@ public class ConfigParser {
 
         for (FileField entry : files) {
             String filePath = entry.file;
-            LoadInstruction instruction = new LoadInstruction(filePath);
-            //instruction.execute();
+            LoadInstruction instruction = new LoadInstruction(data, filePath);
+
             instructions.add(instruction);
         }
 
