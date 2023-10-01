@@ -8,6 +8,7 @@ import javafx.util.Pair;
 import org.apache.commons.collections4.map.ListOrderedMap;
 
 public class Table {
+    private String name;
     private final ListOrderedMap<String, Column<?>> columns = new ListOrderedMap<>();
 
     @SafeVarargs
@@ -72,5 +73,13 @@ public class Table {
 
     public int numColumns() {
         return columns.size();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
