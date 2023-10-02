@@ -15,10 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigParser {
-    private DataSingleton data = new DataSingleton();
-    
+    private final DataSingleton data = new DataSingleton();
+
+    public DataSingleton getData() {
+        return data;
+    }
+
     public List<Instruction> parse(String filename) {
-        
+
         List<Instruction> instructions = new ArrayList<>();
 
         InputStream inputStream = this.getClass()
@@ -122,8 +126,7 @@ public class ConfigParser {
         List<SaveInstruction> instructions = new ArrayList<>();
 
         for (FileField entry : files) {
-            SaveInstruction instruction = new SaveInstruction(entry.file, entry.table);
-
+            SaveInstruction instruction = new SaveInstruction(data, entry.file, entry.table);
             instructions.add(instruction);
         }
 
