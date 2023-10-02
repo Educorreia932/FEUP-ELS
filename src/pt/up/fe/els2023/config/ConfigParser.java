@@ -8,6 +8,7 @@ import pt.up.fe.els2023.config.fields.*;
 import pt.up.fe.els2023.config.fields.commands.*;
 import pt.up.fe.els2023.instructions.*;
 import pt.up.fe.els2023.model.DataSingleton;
+import pt.up.fe.els2023.utils.FileUtils;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -104,7 +105,7 @@ public class ConfigParser {
         List<MergeInstruction> instructions = new ArrayList<>();
 
         for (MergeEntryField entry : mergeEntries) {
-            MergeInstruction instruction = new MergeInstruction(
+            MergeInstruction instruction = new MergeInstruction(data,
                 entry.sources,
                 entry.target
             );

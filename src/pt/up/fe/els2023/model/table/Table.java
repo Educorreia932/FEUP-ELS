@@ -1,11 +1,14 @@
 package pt.up.fe.els2023.model.table;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javafx.util.Pair;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
+
+import static pt.up.fe.els2023.model.table.TabularDataType.INTEGER;
 
 public class Table {
     private String name;
@@ -82,4 +85,15 @@ public class Table {
     public void setName(String name) {
         this.name = name;
     }
+
+    public List<String> getHeaders(){
+        List<String> headers = new ArrayList<>();
+
+        columns.forEach((key, value) -> {
+            headers.add(value.getHeader());
+        });
+
+        return headers;
+    }
+
 }
