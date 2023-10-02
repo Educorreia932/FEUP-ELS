@@ -1,7 +1,6 @@
 package pt.up.fe.els2023.model.table;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
@@ -33,26 +32,13 @@ public class Table {
             .toList();
     }
 
-    public List<String[]> getRows() {
-        List<String[]> allRows = new ArrayList<>();
-
-        int rowNumbers = columns.valueList().get(0).getElements().size();
-        String[] row = new String[rowNumbers];
-
-        // Start by adding headers to list
-        for (int i = 0; i < rowNumbers; i++) {
-            row[i] = columns.get(i);
-        }
-        allRows.add(Arrays.copyOf(row, row.length));
-
-        for (int i = 0; i < rowNumbers; i++) {
-            for (int j = 0; j < columns.keySet().size(); j++) {
-                Column column = columns.getValue(j);
-                row[j] = column.getElement(i).toString();
-            }
-            allRows.add(Arrays.copyOf(row, row.length));
-        }
-        return allRows;
+    public List<List<Object>> getRows() {
+        List<List<Object>> rows = new ArrayList<>();
+        
+        for (int i = 0; i < numRows(); i++)
+            rows.add(getRow(i));
+        
+        return rows;
     }
 
     public Column getColumn(String header) {
