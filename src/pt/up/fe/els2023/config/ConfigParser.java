@@ -8,6 +8,7 @@ import pt.up.fe.els2023.config.fields.*;
 import pt.up.fe.els2023.config.fields.commands.*;
 import pt.up.fe.els2023.instructions.*;
 import pt.up.fe.els2023.model.DataSingleton;
+import pt.up.fe.els2023.utils.FileUtils;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -82,6 +83,7 @@ public class ConfigParser {
 
             if (entry instanceof FromSelectionField) {
                 instruction = new SelectInstruction(
+                    data,
                     ((FromSelectionField) entry).from,
                     ((FromSelectionField) entry).keys
                 );
@@ -89,6 +91,7 @@ public class ConfigParser {
 
             else if (entry instanceof MetadataSelectionField) {
                 instruction = new SelectInstruction(
+                    data,
                     ((MetadataSelectionField) entry).metadata,
                     ((MetadataSelectionField) entry).rename
                 );

@@ -15,6 +15,10 @@ public class DataSingleton {
     public DataSingleton() {
     }
 
+    public List<Table> getTables() {
+        return tables.values().stream().toList();
+    }
+
     public Table getTable(String name) {
         return tables.get(name);
     }

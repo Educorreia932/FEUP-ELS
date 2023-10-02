@@ -1,5 +1,6 @@
 package pt.up.fe.els2023.model.table;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,15 +8,12 @@ import org.apache.commons.collections4.map.ListOrderedMap;
 
 public class Table {
     private String name;
-    private final ListOrderedMap<String, Column> columns = new ListOrderedMap<>();
+    private final ListOrderedMap<String, Column> columns;
 
-    public Table(String name) {
-        this.name = name;
-    }
-    
     public Table(String name, String... headers) {
         this.name = name;
-        
+        this.columns = new ListOrderedMap<>();
+
         for (String header : headers) {
             if (header != null) {
                 Column column = new Column(header);
@@ -44,6 +42,9 @@ public class Table {
     }
 
     public void addRow(Object... row) {
+        if (row.length != numColumns())
+            throw new IllegalArgumentException("Row must have same number of elements as the number of columns.");
+        
         for (int i = 0; i < columns.size(); i++) {
             Column column = getColumn(i);
 
