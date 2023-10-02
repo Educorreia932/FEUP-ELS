@@ -14,4 +14,8 @@ public class FileData {
     public String getName() {
         return name;
     }
+
+    public Map<String, Object> getContent() {
+        return content;
+    }
 }
