@@ -107,7 +107,7 @@ public class ConfigParser {
         List<MergeInstruction> instructions = new ArrayList<>();
 
         for (MergeEntryField entry : mergeEntries) {
-            MergeInstruction instruction = new MergeInstruction(
+            MergeInstruction instruction = new MergeInstruction(data,
                 entry.sources,
                 entry.target
             );

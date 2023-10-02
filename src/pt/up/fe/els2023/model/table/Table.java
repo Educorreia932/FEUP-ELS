@@ -30,7 +30,7 @@ public class Table {
     public List<Object> getRow(int index) {
         return columns.values().stream()
             .map(column -> column.getElement(index))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public Column getColumn(String header) {
@@ -83,4 +83,15 @@ public class Table {
     public void setName(String name) {
         this.name = name;
     }
+
+    public List<String> getHeaders(){
+        List<String> headers = new ArrayList<>();
+
+        columns.forEach((key, value) -> {
+            headers.add(value.getHeader());
+        });
+
+        return headers;
+    }
+
 }
