@@ -20,11 +20,11 @@ commands:
   - !merge
     merge:
       - sources:
-          - table_1
-          - table_2
-          - table_3
-        target: table_4
+          - decision_tree_1.yaml
+          - decision_tree_2.yaml
+          - decision_tree_3.yaml
+        target: result
 
 target:
   - file: output.csv
-    table: table_4
+    table: result

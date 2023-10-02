@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
 
-import static pt.up.fe.els2023.model.table.TabularDataType.INTEGER;
-
 public class Table {
     private String name;
     private final ListOrderedMap<String, Column> columns;
@@ -32,7 +30,7 @@ public class Table {
     public List<Object> getRow(int index) {
         return columns.values().stream()
             .map(column -> column.getElement(index))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public Column getColumn(String header) {

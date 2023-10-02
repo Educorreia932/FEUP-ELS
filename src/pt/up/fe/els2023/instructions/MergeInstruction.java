@@ -4,7 +4,6 @@ import pt.up.fe.els2023.model.*;
 import pt.up.fe.els2023.model.table.*;
 
 import java.util.List;
-import javafx.util.Pair;
 
 public class MergeInstruction implements Instruction {
     private final List<String> sources;
@@ -17,23 +16,20 @@ public class MergeInstruction implements Instruction {
         this.target = target;
         this.data = data;
     }
-    
+
     @Override
     public void execute() {
+        List<String> headers = data.getTable(sources.get(0)).getHeaders();
+        Table output = new Table(target, headers.toArray(new String[0]));
 
-        Table output = new Table();
-        for(String header: data.getTable(sources.get(0)).getHeaders()){
-            output.addColumn(header);
-        }
-
-        for(String source: sources){
-            for(int i = 0; i<data.getTable(source).numRows(); i++){
-                output.addRow(data.getTable(source).getRow(i));
+        for (String source : sources) {
+            Table table = data.getTable(source);
+            
+            for (int i = 0; i < table.numRows(); i++) {
+                output.addRow(table.getRow(i).toArray());
             }
         }
 
-        output.setName(target);
-        data.addTable(target, output);
-
+        data.addTable(output);
     }
 }
