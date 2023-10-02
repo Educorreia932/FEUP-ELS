@@ -24,4 +24,11 @@ public class FileUtils {
             entry.file = relativePath + "/" + entry.file;
         }
     }
+
+    public static void createDirectory(String directoryName) {
+        File directory = new File(directoryName);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+    }
 }

@@ -17,6 +17,10 @@ public class Column {
             this.elements = List.of(elements);
     }
 
+    public List<Object> getElements() {
+        return elements;
+    }
+
     void addElement(Object element) {
         // TODO: Is it possible to change it to T?
         elements.add(element);
