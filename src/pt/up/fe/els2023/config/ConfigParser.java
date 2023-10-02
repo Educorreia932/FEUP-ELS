@@ -83,6 +83,7 @@ public class ConfigParser {
 
             if (entry instanceof FromSelectionField) {
                 instruction = new SelectInstruction(
+                    data,
                     ((FromSelectionField) entry).from,
                     ((FromSelectionField) entry).keys
                 );
@@ -90,6 +91,7 @@ public class ConfigParser {
 
             else if (entry instanceof MetadataSelectionField) {
                 instruction = new SelectInstruction(
+                    data,
                     ((MetadataSelectionField) entry).metadata,
                     ((MetadataSelectionField) entry).rename
                 );
