@@ -51,7 +51,7 @@ public class SelectInstruction implements Instruction {
                 for (int i = 0; i < tables.size(); i++) {
                     Table table = tables.get(i);
                     FileData fileData = filesData.get(i);
-                    Map<String, Object> fileContent = fileData.getContent();
+                    Map<String, Object> fileContent = fileData.contents();
                     Map<String, Object> values = (Map<String, Object>) fileContent.get(from);
                     
                     for (KeysField keysField : keysFields)
@@ -65,7 +65,7 @@ public class SelectInstruction implements Instruction {
                     Table table = tables.get(i);
                     FileData fileData = filesData.get(i);
                     
-                    table.addColumn(rename, fileData.getName());
+                    table.addColumn(rename, fileData.name());
                 }
                 
                 break;
