@@ -52,7 +52,13 @@ public class SelectInstruction implements Instruction {
                     Table table = tables.get(i);
                     FileData fileData = filesData.get(i);
                     Map<String, Object> fileContent = fileData.contents();
-                    Map<String, Object> values = (Map<String, Object>) fileContent.get(from);
+                    Map<String, Object> values = fileContent;
+                    
+                    for (String fieldName : from.split("\\.")) {
+                        values = (Map<String, Object>) values.get(fieldName);
+
+                        System.out.println(fieldName);
+                    }
                     
                     for (KeysField keysField : keysFields)
                         table.addColumn(keysField.rename, values.get(keysField.name));
