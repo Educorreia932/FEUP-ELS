@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         ConfigParser parser = new ConfigParser();
 
-        List<Instruction> instructions = parser.parse("resources/config.yaml");
+        List<Instruction> instructions = parser.parse("resources/" + args[0]);
         for (Instruction instruction : instructions) {
             instruction.execute();
         }
