@@ -1,33 +1,36 @@
-package pt.up.fe.els2023.table;
+package pt.up.fe.els2023.model.table;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Column<T> {
+public class Column {
     private String header;
-    private final List<T> elements;
+    private final List<Object> elements;
 
-    public Column(String header) {
+    public Column(String header, Object... elements) {
         this.header = header;
-        this.elements = new ArrayList<>();
+        
+        if (elements.length == 0)
+            this.elements = new ArrayList<>();
+                
+        else
+            this.elements = List.of(elements);
     }
 
-    @SafeVarargs
-    public Column(String header, T... elements) {
-        this.header = header;
-        this.elements = List.of(elements);
+    public List<Object> getElements() {
+        return elements;
     }
 
     void addElement(Object element) {
         // TODO: Is it possible to change it to T?
-        elements.add((T) element);
+        elements.add(element);
     }
 
     void removeElement(int index) {
         elements.remove(index);
     }
 
-    T getElement(int index) {
+    Object getElement(int index) {
         return elements.get(index);
     }
 
