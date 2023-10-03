@@ -3,20 +3,20 @@ package pt.up.fe.els2023.model;
 import pt.up.fe.els2023.model.table.Table;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.apache.commons.collections4.map.ListOrderedMap;
 
 public class DataSingleton {
     // TODO: Change to a table of tables (?)
-    private final Map<String, Table> tables = new HashMap<>();
+    private final ListOrderedMap<String, Table> tables = new ListOrderedMap<>();
     private final List<FileData> filesData = new ArrayList<>();
 
     public DataSingleton() {
     }
 
     public List<Table> getTables() {
-        return tables.values().stream().toList();
+        return tables.valueList();
     }
 
     public Table getTable(String name) {
