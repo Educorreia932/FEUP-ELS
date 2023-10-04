@@ -19,7 +19,9 @@ public class MergeInstruction implements Instruction {
 
     @Override
     public void execute() {
-        Table output = Table.concat(data.getTables());
+        List<Table> tables = sources.stream().map(data::getTable).toList();
+
+        Table output = Table.concat(tables);
 
         data.addTable(target, output);
     }
