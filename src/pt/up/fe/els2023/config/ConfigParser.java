@@ -7,7 +7,7 @@ import org.yaml.snakeyaml.nodes.Tag;
 import pt.up.fe.els2023.config.fields.*;
 import pt.up.fe.els2023.config.fields.commands.*;
 import pt.up.fe.els2023.instructions.*;
-import pt.up.fe.els2023.model.DataSingleton;
+import pt.up.fe.els2023.model.DataContext;
 import pt.up.fe.els2023.utils.FileUtils;
 
 import java.io.InputStream;
@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigParser {
-    private final DataSingleton data = new DataSingleton();
+    private final DataContext data = new DataContext();
 
-    public DataSingleton getData() {
+    public DataContext getData() {
         return data;
     }
 
@@ -49,6 +49,8 @@ public class ConfigParser {
         List<FileField> source = config.source;
         List<CommandField> commands = config.commands;
         List<FileField> target = config.target;
+        
+        // TODO: Use Factory pattern for instructions
 
         FileUtils.setFilesRelativePath(filename, source);
         instructions.addAll(parseSource(source));

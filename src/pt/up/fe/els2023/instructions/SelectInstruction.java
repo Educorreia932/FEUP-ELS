@@ -1,7 +1,7 @@
 package pt.up.fe.els2023.instructions;
 
 import pt.up.fe.els2023.config.fields.commands.KeysField;
-import pt.up.fe.els2023.model.DataSingleton;
+import pt.up.fe.els2023.model.DataContext;
 import pt.up.fe.els2023.model.FileData;
 import pt.up.fe.els2023.model.table.Table;
 
@@ -13,7 +13,7 @@ enum SelectionType {
 }
 
 public class SelectInstruction implements Instruction {
-    private final DataSingleton data;
+    private final DataContext data;
 
     // From selection
     private String from = null;
@@ -26,14 +26,14 @@ public class SelectInstruction implements Instruction {
     private final SelectionType selectionType;
 
     // TODO: Split into two separate instructions (?)
-    public SelectInstruction(DataSingleton data, String from, List<KeysField> keysFields) {
+    public SelectInstruction(DataContext data, String from, List<KeysField> keysFields) {
         this.data = data;
         this.from = from;
         this.keysFields = keysFields;
         this.selectionType = SelectionType.FROM;
     }
 
-    public SelectInstruction(DataSingleton data, String metadata, String rename) {
+    public SelectInstruction(DataContext data, String metadata, String rename) {
         this.data = data;
         this.metadata = metadata;
         this.rename = rename;

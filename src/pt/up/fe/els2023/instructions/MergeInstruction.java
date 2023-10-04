@@ -9,9 +9,9 @@ public class MergeInstruction implements Instruction {
     private final List<String> sources;
     private final String target;
 
-    private final DataSingleton data;
+    private final DataContext data;
 
-    public MergeInstruction(DataSingleton data, List<String> sources, String target) {
+    public MergeInstruction(DataContext data, List<String> sources, String target) {
         this.sources = sources;
         this.target = target;
         this.data = data;

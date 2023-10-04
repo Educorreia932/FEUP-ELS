@@ -7,12 +7,12 @@ import java.util.List;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
 
-public class DataSingleton {
+public class DataContext {
     // TODO: Change to a table of tables (?)
     private final ListOrderedMap<String, Table> tables = new ListOrderedMap<>();
     private final List<FileData> filesData = new ArrayList<>();
 
-    public DataSingleton() {
+    public DataContext() {
     }
 
     public List<Table> getTables() {
