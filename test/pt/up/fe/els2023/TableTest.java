@@ -17,7 +17,6 @@ public class TableTest {
     @Before
     public void initialize() {
         table = new Table(
-            "test_table",
             Arrays.asList(
                 "First name",
                 "Last name",

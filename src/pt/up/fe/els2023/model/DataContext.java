@@ -23,8 +23,8 @@ public class DataContext {
         return tables.get(name);
     }
 
-    public void addTable(Table table) {
-        tables.put(table.getName(), table);
+    public void addTable(String name, Table table) {
+        tables.put(name, table);
     }
 
     public List<FileData> getFilesData() {

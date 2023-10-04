@@ -19,8 +19,8 @@ public class MergeInstruction implements Instruction {
 
     @Override
     public void execute() {
-        Table output = Table.concat(data.getTables(), target);
+        Table output = Table.concat(data.getTables());
 
-        data.addTable(output);
+        data.addTable(target, output);
     }
 }

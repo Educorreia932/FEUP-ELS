@@ -6,16 +6,13 @@ import java.util.List;
 import org.apache.commons.collections4.map.ListOrderedMap;
 
 public class Table {
-    private String name;
     private final ListOrderedMap<String, Column> columns = new ListOrderedMap<>();
 
-    public Table(String name) {
-        this.name = name;
+    public Table() {
+        
     }
-
-    public Table(String name, List<String> headers) {
-        this.name = name;
-
+    
+    public Table(List<String> headers) {
         for (String header : headers) {
             Column column = new Column(header);
 
@@ -81,14 +78,6 @@ public class Table {
         return columns.size();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public List<String> getHeaders() {
         List<String> headers = new ArrayList<>();
 
@@ -99,9 +88,9 @@ public class Table {
         return headers;
     }
 
-    public static Table concat(List<Table> tables, String resultName) {
+    public static Table concat(List<Table> tables) {
         List<String> headers = tables.get(0).getHeaders();
-        Table result = new Table(resultName, headers);
+        Table result = new Table(headers);
 
         for (Table table : tables)
             for (List<String> row : table.getRows())
