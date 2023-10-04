@@ -7,33 +7,30 @@ import org.apache.commons.collections4.map.ListOrderedMap;
 
 public class Table {
     private String name;
-    private final ListOrderedMap<String, Column> columns;
+    private final ListOrderedMap<String, Column> columns = new ListOrderedMap<>();
 
-    public Table(String name, String... headers) {
+    public Table(String name) {
         this.name = name;
-        this.columns = new ListOrderedMap<>();
+    }
+        
+    public Table(String name, List<String> headers) {
+        this.name = name;
 
         for (String header : headers) {
-            if (header != null) {
-                Column column = new Column(header);
+            Column column = new Column(header);
 
-                columns.put(column.getHeader(), column);
-            }
-
-            else {
-                throw new IllegalArgumentException("Key must not be null.");
-            }
+            columns.put(column.getHeader(), column);
         }
     }
 
-    public List<Object> getRow(int index) {
+    public List<String> getRow(int index) {
         return columns.values().stream()
             .map(column -> column.getElement(index))
             .toList();
     }
 
-    public List<List<Object>> getRows() {
-        List<List<Object>> rows = new ArrayList<>();
+    public List<List<String>> getRows() {
+        List<List<String>> rows = new ArrayList<>();
         
         for (int i = 0; i < numRows(); i++)
             rows.add(getRow(i));
@@ -49,18 +46,18 @@ public class Table {
         return columns.getValue(index);
     }
 
-    public void addRow(Object... row) {
-        if (row.length != numColumns())
+    public void addRow(List<String> row) {
+        if (row.size() != numColumns())
             throw new IllegalArgumentException("Row must have same number of elements as the number of columns.");
         
         for (int i = 0; i < columns.size(); i++) {
             Column column = getColumn(i);
 
-            column.addElement(row[i]);
+            column.addElement(row.get(i));
         }
     }
 
-    public void addColumn(String header, Object... elements) {
+    public void addColumn(String header, List<String> elements) {
         Column column = new Column(header, elements);
 
         columns.put(header, column);

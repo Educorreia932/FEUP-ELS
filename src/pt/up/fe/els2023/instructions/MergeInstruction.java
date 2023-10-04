@@ -20,13 +20,13 @@ public class MergeInstruction implements Instruction {
     @Override
     public void execute() {
         List<String> headers = data.getTable(sources.get(0)).getHeaders();
-        Table output = new Table(target, headers.toArray(new String[0]));
+        Table output = new Table(target, headers);
 
         for (String source : sources) {
             Table table = data.getTable(source);
             
             for (int i = 0; i < table.numRows(); i++) {
-                output.addRow(table.getRow(i).toArray());
+                output.addRow(table.getRow(i));
             }
         }
 

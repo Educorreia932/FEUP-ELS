@@ -5,8 +5,7 @@ import pt.up.fe.els2023.model.DataSingleton;
 import pt.up.fe.els2023.model.FileData;
 import pt.up.fe.els2023.model.table.Table;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 enum SelectionType {
     FROM,
@@ -23,7 +22,7 @@ public class SelectInstruction implements Instruction {
     // Metadata selection
     private String metadata = null;
     private String rename = null;
-    
+
     private final SelectionType selectionType;
 
     // TODO: Split into two separate instructions (?)
@@ -40,40 +39,36 @@ public class SelectInstruction implements Instruction {
         this.rename = rename;
         this.selectionType = SelectionType.METADATA;
     }
-    
+
     @Override
     public void execute() {
         List<Table> tables = data.getTables();
         List<FileData> filesData = data.getFilesData();
-        
+
         switch (this.selectionType) {
             case FROM:
                 for (int i = 0; i < tables.size(); i++) {
                     Table table = tables.get(i);
                     FileData fileData = filesData.get(i);
-                    Map<String, Object> fileContent = fileData.contents();
-                    Map<String, Object> values = fileContent;
-                    
-                    for (String fieldName : from.split("\\.")) {
+                    Map<String, Object> values = fileData.contents();
+
+                    for (String fieldName : from.split("\\."))
                         values = (Map<String, Object>) values.get(fieldName);
 
-                        System.out.println(fieldName);
-                    }
-                    
                     for (KeysField keysField : keysFields)
-                        table.addColumn(keysField.rename, values.get(keysField.name));
+                        table.addColumn(keysField.rename, Collections.singletonList(values.get(keysField.name).toString()));
                 }
-                
+
                 break;
-                
+
             case METADATA:
                 for (int i = 0; i < tables.size(); i++) {
                     Table table = tables.get(i);
                     FileData fileData = filesData.get(i);
-                    
-                    table.addColumn(rename, fileData.name());
+
+                    table.addColumn(rename, new ArrayList<>(List.of(fileData.name())));
                 }
-                
+
                 break;
         }
     }

@@ -5,24 +5,23 @@ import java.util.List;
 
 public class Column {
     private String header;
-    private final List<Object> elements;
+    private final List<String> elements = new ArrayList<>();
 
-    public Column(String header, Object... elements) {
+    public Column(String header) {
         this.header = header;
-        
-        if (elements.length == 0)
-            this.elements = new ArrayList<>();
-                
-        else
-            this.elements = List.of(elements);
+    }
+    
+    public Column(String header, List<String> elements) {
+        this.header = header;
+
+        this.elements.addAll(elements);
     }
 
-    public List<Object> getElements() {
+    public List<String> getElements() {
         return elements;
     }
 
-    void addElement(Object element) {
-        // TODO: Is it possible to change it to T?
+    void addElement(String element) {
         elements.add(element);
     }
 
@@ -30,7 +29,7 @@ public class Column {
         elements.remove(index);
     }
 
-    Object getElement(int index) {
+    String getElement(int index) {
         return elements.get(index);
     }
 

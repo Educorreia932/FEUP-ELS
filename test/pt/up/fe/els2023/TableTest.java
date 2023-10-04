@@ -7,6 +7,10 @@ import static org.junit.Assert.assertEquals;
 
 import pt.up.fe.els2023.model.table.Table;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class TableTest {
     private Table table;
 
@@ -14,16 +18,18 @@ public class TableTest {
     public void initialize() {
         table = new Table(
             "test_table",
-            "First name",
-            "Last name",
-            "Age"
+            Arrays.asList(
+                "First name",
+                "Last name",
+                "Age"
+            )
         );
     }
 
     @Test
     public void addRow() {
-        table.addRow("John", "Doe", 22);
-        table.addRow("Jane", "Doe", 23);
+        table.addRow(Arrays.asList("John", "Doe", "22"));
+        table.addRow(Arrays.asList("Jane", "Doe", "23"));
 
         assertEquals(2, table.numRows());
         assertEquals(3, table.numColumns());
@@ -31,10 +37,10 @@ public class TableTest {
 
     @Test
     public void addColumn() {
-        table.addRow("John", "Doe", 22);
-        table.addRow("Jane", "Doe", 23);
+        table.addRow(Arrays.asList("John", "Doe", "22"));
+        table.addRow(Arrays.asList("Jane", "Doe", "23"));
 
-        table.addColumn("Height", 1.75, 1.60);
+        table.addColumn("Height", Arrays.asList("1.75", "1.60"));
 
         assertEquals(2, table.numRows());
         assertEquals(4, table.numColumns());
@@ -42,8 +48,8 @@ public class TableTest {
 
     @Test
     public void removeColumn() {
-        table.addRow("John", "Doe", 22);
-        table.addRow("Jane", "Doe", 23);
+        table.addRow(Arrays.asList("John", "Doe", "22"));
+        table.addRow(Arrays.asList("Jane", "Doe", "23"));
 
         table.removeColumn("Age");
 
@@ -53,8 +59,8 @@ public class TableTest {
 
     @Test
     public void removeRow() {
-        table.addRow("John", "Doe", 22);
-        table.addRow("Jane", "Doe", 23);
+        table.addRow(Arrays.asList("John", "Doe", "22"));
+        table.addRow(Arrays.asList("Jane", "Doe", "23"));
 
         table.removeRow(0);
 
