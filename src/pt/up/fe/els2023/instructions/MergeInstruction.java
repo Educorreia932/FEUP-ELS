@@ -19,17 +19,10 @@ public class MergeInstruction implements Instruction {
 
     @Override
     public void execute() {
-        List<String> headers = data.getTable(sources.get(0)).getHeaders();
-        Table output = new Table(target, headers);
+        List<Table> tables = sources.stream().map(data::getTable).toList();
 
-        for (String source : sources) {
-            Table table = data.getTable(source);
-            
-            for (int i = 0; i < table.numRows(); i++) {
-                output.addRow(table.getRow(i));
-            }
-        }
+        Table output = Table.concat(tables);
 
-        data.addTable(output);
+        data.addTable(target, output);
     }
 }

@@ -6,16 +6,13 @@ import java.util.List;
 import org.apache.commons.collections4.map.ListOrderedMap;
 
 public class Table {
-    private String name;
     private final ListOrderedMap<String, Column> columns = new ListOrderedMap<>();
 
-    public Table(String name) {
-        this.name = name;
-    }
+    public Table() {
         
-    public Table(String name, List<String> headers) {
-        this.name = name;
-
+    }
+    
+    public Table(List<String> headers) {
         for (String header : headers) {
             Column column = new Column(header);
 
@@ -31,10 +28,10 @@ public class Table {
 
     public List<List<String>> getRows() {
         List<List<String>> rows = new ArrayList<>();
-        
+
         for (int i = 0; i < numRows(); i++)
             rows.add(getRow(i));
-        
+
         return rows;
     }
 
@@ -49,7 +46,7 @@ public class Table {
     public void addRow(List<String> row) {
         if (row.size() != numColumns())
             throw new IllegalArgumentException("Row must have same number of elements as the number of columns.");
-        
+
         for (int i = 0; i < columns.size(); i++) {
             Column column = getColumn(i);
 
@@ -81,15 +78,7 @@ public class Table {
         return columns.size();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<String> getHeaders(){
+    public List<String> getHeaders() {
         List<String> headers = new ArrayList<>();
 
         columns.forEach((key, value) -> {
@@ -99,4 +88,14 @@ public class Table {
         return headers;
     }
 
+    public static Table concat(List<Table> tables) {
+        List<String> headers = tables.get(0).getHeaders();
+        Table result = new Table(headers);
+
+        for (Table table : tables)
+            for (List<String> row : table.getRows())
+                result.addRow(row);
+
+        return result;
+    }
 }

@@ -27,10 +27,10 @@ public class LoadInstruction implements Instruction {
             // TODO: Add more cases
         };
 
-        Table table = new Table(file.getName());
+        Table table = new Table();
         FileData fileData = new FileData(contents, file.getName());
         
-        data.addTable(table);
+        data.addTable(file.getName(), table);
         data.addFilesData(fileData);
     }
 }
