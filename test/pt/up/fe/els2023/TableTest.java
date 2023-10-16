@@ -5,11 +5,16 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
+import pt.up.fe.els2023.load.YamlLoader;
+import pt.up.fe.els2023.model.table.Column;
 import pt.up.fe.els2023.model.table.Table;
+import pt.up.fe.els2023.utils.FileUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class TableTest {
     private Table table;
@@ -65,5 +70,28 @@ public class TableTest {
 
         assertEquals(1, table.numRows());
         assertEquals(3, table.numColumns());
+    }
+
+    @Test
+    public void fromContents() {
+        Table expected = new Table();
+
+        Table a = new Table();
+        Table b = new Table();
+        Table c = new Table();
+
+        c.addColumn("C", List.of("1"));
+        b.addColumn("B", List.of(c));
+        a.addColumn("0", List.of("0"));
+        a.addColumn("1", List.of(b));
+
+        expected.addColumn("A", List.of(a));
+        expected.addColumn("D", List.of("2"));
+        
+        File file = new File("resources/test.yaml");
+        Map<String, Object> contents = new YamlLoader().load(file);
+        Table table = Table.fromContents(contents);
+
+        assertEquals(table, expected);
     }
 }

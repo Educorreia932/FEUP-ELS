@@ -147,4 +147,30 @@ public class Table {
 
         return result;
     }
+    
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) 
+            return true;
+
+        if (object == null || getClass() != object.getClass()) 
+            return false;
+
+        Table table = (Table) object;
+
+        // Compare headers
+        if (!getHeaders().equals(table.getHeaders())) 
+            return false;
+
+        // Compare each column
+        for (String header : getHeaders()) {
+            Column thisColumn = getColumn(header);
+            Column otherColumn = table.getColumn(header);
+
+            if (!thisColumn.getElements().equals(otherColumn.getElements())) 
+                return false;
+        }
+
+        return true;
+    }
 }
