@@ -3,25 +3,25 @@ package pt.up.fe.els2023.model.table;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Column {
+public class Column<T> {
     private String header;
-    private final List<String> elements = new ArrayList<>();
+    private final List<T> elements = new ArrayList<>();
 
     public Column(String header) {
         this.header = header;
     }
     
-    public Column(String header, List<String> elements) {
+    public Column(String header, List<T> elements) {
         this.header = header;
 
         this.elements.addAll(elements);
     }
 
-    public List<String> getElements() {
+    public List<T> getElements() {
         return elements;
     }
 
-    void addElement(String element) {
+    void addElement(T element) {
         elements.add(element);
     }
 
@@ -29,7 +29,7 @@ public class Column {
         elements.remove(index);
     }
 
-    String getElement(int index) {
+    T getElement(int index) {
         return elements.get(index);
     }
 

@@ -1,7 +1,6 @@
 package pt.up.fe.els2023.model.table;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
 
@@ -12,6 +11,52 @@ public class Table {
         
     }
     
+    public static Table fromContents(Map<String, Object> contents) {
+        Table table = new Table();
+        
+        for (Map.Entry<String, Object> entry : contents.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            
+            // Array
+            if (value instanceof List<?>) {
+                Table arrayTable = new Table();
+                int i = 0;
+                
+                // Iterate rows
+                for (Object row : (List<?>) value) {
+                    if (row instanceof Map<?,?>) {
+                        Column<Table> column = new Column<>(String.valueOf(i));
+                        column.addElement(fromContents((Map<String, Object>) row));
+
+                        arrayTable.addColumn(column);
+                    }
+
+                    else {
+                        Column<String> column = new Column<>(String.valueOf(i));
+                        column.addElement(String.valueOf(row));
+                        
+                        arrayTable.addColumn(column);
+                    }
+                    
+                    i++;
+                }
+                
+                table.addColumn(key, Collections.singletonList(arrayTable));
+            }
+
+            // Object
+            else if (value instanceof Map<?,?>) 
+                table.addColumn(key, List.of(fromContents((Map<String, Object>) value)));
+            
+            // Atomic value
+            else 
+                table.addColumn(key, List.of(String.valueOf(value)));
+        }
+        
+        return table;
+    }
+    
     public Table(List<String> headers) {
         for (String header : headers) {
             Column column = new Column(header);
@@ -20,14 +65,14 @@ public class Table {
         }
     }
 
-    public List<String> getRow(int index) {
+    public List<?> getRow(int index) {
         return columns.values().stream()
             .map(column -> column.getElement(index))
             .toList();
     }
 
-    public List<List<String>> getRows() {
-        List<List<String>> rows = new ArrayList<>();
+    public List<List<?>> getRows() {
+        List<List<?>> rows = new ArrayList<>();
 
         for (int i = 0; i < numRows(); i++)
             rows.add(getRow(i));
@@ -43,7 +88,7 @@ public class Table {
         return columns.getValue(index);
     }
 
-    public void addRow(List<String> row) {
+    public void addRow(List<?> row) {
         if (row.size() != numColumns())
             throw new IllegalArgumentException("Row must have same number of elements as the number of columns.");
 
@@ -54,7 +99,11 @@ public class Table {
         }
     }
 
-    public void addColumn(String header, List<String> elements) {
+    public void addColumn(Column column) {
+        columns.put(column.getHeader(), column);
+    }
+
+    public void addColumn(String header, List<?> elements) {
         Column column = new Column(header, elements);
 
         columns.put(header, column);
@@ -93,7 +142,7 @@ public class Table {
         Table result = new Table(headers);
 
         for (Table table : tables)
-            for (List<String> row : table.getRows())
+            for (List<?> row : table.getRows())
                 result.addRow(row);
 
         return result;
