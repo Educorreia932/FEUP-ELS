@@ -26,7 +26,7 @@ public class SaveInstruction implements Instruction {
     public void execute() {
         Table table = data.getTable(tableName);
         List<String> headers = table.getHeaders();
-        List<List> rows = table.getRows();
+        List<List<Object>> rows = table.getRows();
 
         String[] headerLines = headers.toArray(String[]::new);
         List<String[]> rowLines = new ArrayList<>();

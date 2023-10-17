@@ -11,9 +11,9 @@ public class DataContext {
     private final Table masterTable = new Table();
 
     public DataContext() {
-        masterTable.addColumn("Filename", new ArrayList<String>());
-        masterTable.addColumn("Table Name", new ArrayList<String>());
-        masterTable.addColumn("Table", new ArrayList<Table>());
+        masterTable.addColumn("Filename", new ArrayList<>());
+        masterTable.addColumn("Table Name", new ArrayList<>());
+        masterTable.addColumn("Table", new ArrayList<>());
     }
 
     public void addTable(String filename, Table table) {
@@ -39,7 +39,7 @@ public class DataContext {
     }
     
     // TODO: Add method to keep column header in rows
-    public List<List> getEntries() {
+    public List<List<Object>> getEntries() {
         return masterTable.getRows();
     }
 

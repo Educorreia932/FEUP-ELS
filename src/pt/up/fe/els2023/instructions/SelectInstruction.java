@@ -42,13 +42,13 @@ public class SelectInstruction implements Instruction {
 
     @Override
     public void execute() {
-        List<List> entries = dataContext.getEntries();
+        List<List<Object>> entries = dataContext.getEntries();
 
         switch (this.selectionType) {
             case FROM:
 
                 // Iterate over tables for every file
-                for (List entry : entries) {
+                for (List<Object> entry : entries) {
                     Table selectionTable = new Table();
                     Table fileTable = (Table) entry.get(2);
                     Table selection = (Table) fileTable.getColumn(from).getElements().get(0);

@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
+import pt.up.fe.els2023.model.table.values.StringValue;
+import pt.up.fe.els2023.model.table.values.TableValue;
 
 public class Table {
     private final ListOrderedMap<String, Column<?>> columns = new ListOrderedMap<>();
@@ -27,14 +29,14 @@ public class Table {
                 // Iterate rows
                 for (Object row : (List<?>) value) {
                     if (row instanceof Map<?, ?>) {
-                        Column<Table> column = new Column<>(String.valueOf(i));
+                        Column<TableValue> column = new Column<>(String.valueOf(i));
                         column.addElement(fromContents((Map<String, Object>) row));
 
                         arrayTable.addColumn(column);
                     }
 
                     else {
-                        Column<String> column = new Column<>(String.valueOf(i));
+                        Column<StringValue> column = new Column<>(String.valueOf(i));
                         column.addElement(String.valueOf(row));
 
                         arrayTable.addColumn(column);
@@ -60,20 +62,20 @@ public class Table {
 
     public Table(List<String> headers) {
         for (String header : headers) {
-            Column<?> column = new Column(header);
+            Column<?> column = new Column<>(header);
 
             columns.put(column.getHeader(), column);
         }
     }
 
-    public ArrayList<?> getRow(int index) {
+    public ArrayList<Object> getRow(int index) {
         return columns.values().stream()
             .map(column -> column.getElement(index))
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public List<List> getRows() {
-        List<List> rows = new ArrayList<>();
+    public List<List<Object>> getRows() {
+        List<List<Object>> rows = new ArrayList<>();
 
         for (int i = 0; i < numRows(); i++)
             rows.add(getRow(i));
@@ -94,7 +96,7 @@ public class Table {
             throw new IllegalArgumentException("Row must have same number of elements as the number of columns.");
 
         for (int i = 0; i < columns.size(); i++) {
-            Column column = getColumn(i);
+            Column<?> column = getColumn(i);
 
             column.addElement(row.get(i));
         }
@@ -104,7 +106,7 @@ public class Table {
         columns.put(column.getHeader(), column);
     }
     
-    public void addColumn(String header, List<?> elements) {
+    public void addColumn(String header, List<Object> elements) {
         Column<?> column = new Column<>(header, elements);
 
         columns.put(header, column);
