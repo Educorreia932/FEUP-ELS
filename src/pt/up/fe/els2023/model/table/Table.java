@@ -52,9 +52,13 @@ public class Table {
             else if (value instanceof Map<?, ?>)
                 table.addColumn(key, List.of(fromContents((Map<String, Object>) value)));
 
-                // Atomic value
-            else
-                table.addColumn(key, List.of(String.valueOf(value)));
+            // Terminal value
+            else {
+                if (value == null)
+                    value = "null";
+                
+                table.addColumn(key, Collections.singletonList(value));
+            }
         }
 
         return table;

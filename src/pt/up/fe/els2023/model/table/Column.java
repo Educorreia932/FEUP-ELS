@@ -1,5 +1,7 @@
 package pt.up.fe.els2023.model.table;
 
+import pt.up.fe.els2023.model.table.values.DoubleValue;
+import pt.up.fe.els2023.model.table.values.IntegerValue;
 import pt.up.fe.els2023.model.table.values.StringValue;
 import pt.up.fe.els2023.model.table.values.TableValue;
 import pt.up.fe.els2023.model.table.values.Value;
@@ -14,6 +16,8 @@ public class Column<T extends Value> {
     private static final FunctionClassMap<Object, Value> convertToValue = new FunctionClassMap<>();
 
     static {
+        convertToValue.put(Double.class, DoubleValue::new);
+        convertToValue.put(Integer.class, IntegerValue::new);
         convertToValue.put(String.class, StringValue::new);
         convertToValue.put(Table.class, TableValue::new);
     }
@@ -33,6 +37,7 @@ public class Column<T extends Value> {
         return elements.stream().map(Value::value).toList();
     }
 
+    @SuppressWarnings("unchecked")
     void addElement(Object element) {
         elements.add((T) convertToValue.apply(element));
     }
