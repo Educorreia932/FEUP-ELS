@@ -2,7 +2,6 @@ package pt.up.fe.els2023.instructions;
 
 import pt.up.fe.els2023.load.YamlLoader;
 import pt.up.fe.els2023.model.DataContext;
-import pt.up.fe.els2023.model.FileData;
 import pt.up.fe.els2023.model.table.Table;
 import pt.up.fe.els2023.utils.FileUtils;
 
@@ -10,11 +9,11 @@ import java.io.File;
 import java.util.Map;
 
 public class LoadInstruction implements Instruction {
-    private final DataContext data;
+    private final DataContext dataContext;
     private final File file;
 
-    public LoadInstruction(DataContext data, String filePath) {
-        this.data = data;
+    public LoadInstruction(DataContext dataContext, String filePath) {
+        this.dataContext = dataContext;
         this.file = new File(filePath);
     }
 
@@ -27,10 +26,8 @@ public class LoadInstruction implements Instruction {
             // TODO: Add more cases
         };
 
-        Table table = new Table();
-        FileData fileData = new FileData(contents, file.getName());
-        
-        data.addTable(file.getName(), table);
-        data.addFilesData(fileData);
+        Table table = Table.fromContents(contents);
+
+        dataContext.addTable(file.getName(), table);
     }
 }

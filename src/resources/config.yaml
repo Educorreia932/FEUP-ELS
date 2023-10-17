@@ -5,10 +5,6 @@ source:
 commands:
   - !select
     select:
-      - !metadataSelection
-        metadata: filename
-        rename: File
-        
       - !fromSelection
         from: params
         keys:
@@ -21,6 +17,10 @@ commands:
           - name: min_samples_split
             rename: Min Samples Split
 
+      - !metadataSelection
+        metadata: filename
+        rename: File
+        
   - !merge
     merge:
       - sources:

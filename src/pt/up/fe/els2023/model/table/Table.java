@@ -1,31 +1,32 @@
 package pt.up.fe.els2023.model.table;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
 
 public class Table {
-    private final ListOrderedMap<String, Column> columns = new ListOrderedMap<>();
+    private final ListOrderedMap<String, Column<?>> columns = new ListOrderedMap<>();
 
     public Table() {
-        
+
     }
-    
+
     public static Table fromContents(Map<String, Object> contents) {
         Table table = new Table();
-        
+
         for (Map.Entry<String, Object> entry : contents.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
-            
+
             // Array
             if (value instanceof List<?>) {
                 Table arrayTable = new Table();
                 int i = 0;
-                
+
                 // Iterate rows
                 for (Object row : (List<?>) value) {
-                    if (row instanceof Map<?,?>) {
+                    if (row instanceof Map<?, ?>) {
                         Column<Table> column = new Column<>(String.valueOf(i));
                         column.addElement(fromContents((Map<String, Object>) row));
 
@@ -35,44 +36,44 @@ public class Table {
                     else {
                         Column<String> column = new Column<>(String.valueOf(i));
                         column.addElement(String.valueOf(row));
-                        
+
                         arrayTable.addColumn(column);
                     }
-                    
+
                     i++;
                 }
-                
+
                 table.addColumn(key, Collections.singletonList(arrayTable));
             }
 
             // Object
-            else if (value instanceof Map<?,?>) 
+            else if (value instanceof Map<?, ?>)
                 table.addColumn(key, List.of(fromContents((Map<String, Object>) value)));
-            
-            // Atomic value
-            else 
+
+                // Atomic value
+            else
                 table.addColumn(key, List.of(String.valueOf(value)));
         }
-        
+
         return table;
     }
-    
+
     public Table(List<String> headers) {
         for (String header : headers) {
-            Column column = new Column(header);
+            Column<?> column = new Column(header);
 
             columns.put(column.getHeader(), column);
         }
     }
 
-    public List<?> getRow(int index) {
+    public ArrayList<?> getRow(int index) {
         return columns.values().stream()
             .map(column -> column.getElement(index))
-            .toList();
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public List<List<?>> getRows() {
-        List<List<?>> rows = new ArrayList<>();
+    public List<List> getRows() {
+        List<List> rows = new ArrayList<>();
 
         for (int i = 0; i < numRows(); i++)
             rows.add(getRow(i));
@@ -80,11 +81,11 @@ public class Table {
         return rows;
     }
 
-    public Column getColumn(String header) {
+    public Column<?> getColumn(String header) {
         return columns.get(header);
     }
 
-    public Column getColumn(int index) {
+    public Column<?> getColumn(int index) {
         return columns.getValue(index);
     }
 
@@ -99,12 +100,12 @@ public class Table {
         }
     }
 
-    public void addColumn(Column column) {
+    public void addColumn(Column<?> column) {
         columns.put(column.getHeader(), column);
     }
-
+    
     public void addColumn(String header, List<?> elements) {
-        Column column = new Column(header, elements);
+        Column<?> column = new Column<>(header, elements);
 
         columns.put(header, column);
     }
@@ -150,24 +151,24 @@ public class Table {
     
     @Override
     public boolean equals(Object object) {
-        if (this == object) 
+        if (this == object)
             return true;
 
-        if (object == null || getClass() != object.getClass()) 
+        if (object == null || getClass() != object.getClass())
             return false;
 
         Table table = (Table) object;
 
         // Compare headers
-        if (!getHeaders().equals(table.getHeaders())) 
+        if (!getHeaders().equals(table.getHeaders()))
             return false;
 
         // Compare each column
         for (String header : getHeaders()) {
-            Column thisColumn = getColumn(header);
-            Column otherColumn = table.getColumn(header);
+            Column<?> thisColumn = getColumn(header);
+            Column<?> otherColumn = table.getColumn(header);
 
-            if (!thisColumn.getElements().equals(otherColumn.getElements())) 
+            if (!thisColumn.getElements().equals(otherColumn.getElements()))
                 return false;
         }
 
