@@ -2,7 +2,7 @@ package pt.up.fe.els2023.instructions;
 
 import pt.up.fe.els2023.config.fields.commands.KeysField;
 import pt.up.fe.els2023.model.DataContext;
-import pt.up.fe.els2023.model.FileData;
+import pt.up.fe.els2023.model.table.Column;
 import pt.up.fe.els2023.model.table.Table;
 
 import java.util.*;
@@ -13,7 +13,7 @@ enum SelectionType {
 }
 
 public class SelectInstruction implements Instruction {
-    private final DataContext data;
+    private final DataContext dataContext;
 
     // From selection
     private String from = null;
@@ -26,15 +26,15 @@ public class SelectInstruction implements Instruction {
     private final SelectionType selectionType;
 
     // TODO: Split into two separate instructions (?)
-    public SelectInstruction(DataContext data, String from, List<KeysField> keysFields) {
-        this.data = data;
+    public SelectInstruction(DataContext dataContext, String from, List<KeysField> keysFields) {
+        this.dataContext = dataContext;
         this.from = from;
         this.keysFields = keysFields;
         this.selectionType = SelectionType.FROM;
     }
 
     public SelectInstruction(DataContext data, String metadata, String rename) {
-        this.data = data;
+        this.dataContext = data;
         this.metadata = metadata;
         this.rename = rename;
         this.selectionType = SelectionType.METADATA;
@@ -42,31 +42,38 @@ public class SelectInstruction implements Instruction {
 
     @Override
     public void execute() {
-        List<Table> tables = data.getTables();
-        List<FileData> filesData = data.getFilesData();
+        List<List<Object>> entries = dataContext.getEntries();
 
         switch (this.selectionType) {
             case FROM:
-                for (int i = 0; i < tables.size(); i++) {
-                    Table table = tables.get(i);
-                    FileData fileData = filesData.get(i);
-                    Map<String, Object> values = fileData.contents();
 
-                    for (String fieldName : from.split("\\."))
-                        values = (Map<String, Object>) values.get(fieldName);
+                // Iterate over tables for every file
+                for (List<Object> entry : entries) {
+                    Table selectionTable = new Table();
+                    Table fileTable = (Table) entry.get(2);
+                    Table selection = (Table) fileTable.getColumn(from).getElements().get(0);
 
-                    for (KeysField keysField : keysFields)
-                        table.addColumn(keysField.rename, Collections.singletonList(values.get(keysField.name).toString()));
+                    for (KeysField keysField : keysFields) {
+                        Column<?> column = selection.getColumn(keysField.name);
+                        column.setHeader(keysField.rename);
+
+                        selectionTable.addColumn(column);
+                    }
+
+                    // Replace table
+                    dataContext.replaceTable((String) entry.get(1), selectionTable);
+
+                    // TODO: Nested sub-fields
                 }
 
                 break;
 
             case METADATA:
-                for (int i = 0; i < tables.size(); i++) {
-                    Table table = tables.get(i);
-                    FileData fileData = filesData.get(i);
+                for (List<?> entry : entries) {
+                    Table fileTable = (Table) entry.get(2);
+                    String filename = (String) entry.get(0);
 
-                    table.addColumn(rename, new ArrayList<>(List.of(fileData.name())));
+                    fileTable.addColumn(rename, List.of(filename));
                 }
 
                 break;

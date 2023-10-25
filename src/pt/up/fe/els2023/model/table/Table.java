@@ -1,33 +1,85 @@
 package pt.up.fe.els2023.model.table;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
+import pt.up.fe.els2023.model.table.values.StringValue;
+import pt.up.fe.els2023.model.table.values.TableValue;
 
 public class Table {
-    private final ListOrderedMap<String, Column> columns = new ListOrderedMap<>();
+    private final ListOrderedMap<String, Column<?>> columns = new ListOrderedMap<>();
 
     public Table() {
-        
+
     }
-    
+
+    public static Table fromContents(Map<String, Object> contents) {
+        Table table = new Table();
+
+        for (Map.Entry<String, Object> entry : contents.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            // Array
+            if (value instanceof List<?>) {
+                Table arrayTable = new Table();
+                int i = 0;
+
+                // Iterate rows
+                for (Object row : (List<?>) value) {
+                    if (row instanceof Map<?, ?>) {
+                        Column<TableValue> column = new Column<>(String.valueOf(i));
+                        column.addElement(fromContents((Map<String, Object>) row));
+
+                        arrayTable.addColumn(column);
+                    }
+
+                    else {
+                        Column<StringValue> column = new Column<>(String.valueOf(i));
+                        column.addElement(String.valueOf(row));
+
+                        arrayTable.addColumn(column);
+                    }
+
+                    i++;
+                }
+
+                table.addColumn(key, Collections.singletonList(arrayTable));
+            }
+
+            // Object
+            else if (value instanceof Map<?, ?>)
+                table.addColumn(key, List.of(fromContents((Map<String, Object>) value)));
+
+            // Terminal value
+            else {
+                if (value == null)
+                    value = "null";
+                
+                table.addColumn(key, Collections.singletonList(value));
+            }
+        }
+
+        return table;
+    }
+
     public Table(List<String> headers) {
         for (String header : headers) {
-            Column column = new Column(header);
+            Column<?> column = new Column<>(header);
 
             columns.put(column.getHeader(), column);
         }
     }
 
-    public List<String> getRow(int index) {
+    public ArrayList<Object> getRow(int index) {
         return columns.values().stream()
             .map(column -> column.getElement(index))
-            .toList();
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public List<List<String>> getRows() {
-        List<List<String>> rows = new ArrayList<>();
+    public List<List<Object>> getRows() {
+        List<List<Object>> rows = new ArrayList<>();
 
         for (int i = 0; i < numRows(); i++)
             rows.add(getRow(i));
@@ -35,27 +87,31 @@ public class Table {
         return rows;
     }
 
-    public Column getColumn(String header) {
+    public Column<?> getColumn(String header) {
         return columns.get(header);
     }
 
-    public Column getColumn(int index) {
+    public Column<?> getColumn(int index) {
         return columns.getValue(index);
     }
 
-    public void addRow(List<String> row) {
+    public void addRow(List<?> row) {
         if (row.size() != numColumns())
             throw new IllegalArgumentException("Row must have same number of elements as the number of columns.");
 
         for (int i = 0; i < columns.size(); i++) {
-            Column column = getColumn(i);
+            Column<?> column = getColumn(i);
 
             column.addElement(row.get(i));
         }
     }
 
-    public void addColumn(String header, List<String> elements) {
-        Column column = new Column(header, elements);
+    public void addColumn(Column<?> column) {
+        columns.put(column.getHeader(), column);
+    }
+    
+    public void addColumn(String header, List<Object> elements) {
+        Column<?> column = new Column<>(header, elements);
 
         columns.put(header, column);
     }
@@ -93,9 +149,35 @@ public class Table {
         Table result = new Table(headers);
 
         for (Table table : tables)
-            for (List<String> row : table.getRows())
+            for (List<?> row : table.getRows())
                 result.addRow(row);
 
         return result;
+    }
+    
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+
+        if (object == null || getClass() != object.getClass())
+            return false;
+
+        Table table = (Table) object;
+
+        // Compare headers
+        if (!getHeaders().equals(table.getHeaders()))
+            return false;
+
+        // Compare each column
+        for (String header : getHeaders()) {
+            Column<?> thisColumn = getColumn(header);
+            Column<?> otherColumn = table.getColumn(header);
+
+            if (!thisColumn.getElements().equals(otherColumn.getElements()))
+                return false;
+        }
+
+        return true;
     }
 }

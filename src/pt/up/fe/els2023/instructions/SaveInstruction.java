@@ -26,12 +26,12 @@ public class SaveInstruction implements Instruction {
     public void execute() {
         Table table = data.getTable(tableName);
         List<String> headers = table.getHeaders();
-        List<List<String>> rows = table.getRows();
+        List<List<Object>> rows = table.getRows();
 
         String[] headerLines = headers.toArray(String[]::new);
         List<String[]> rowLines = new ArrayList<>();
 
-        for (List<String> row : rows) {
+        for (List<?> row : rows) {
             String[] stringList = row.stream()
                 .map(Object::toString)
                 .toArray(String[]::new);
