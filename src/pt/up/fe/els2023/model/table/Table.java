@@ -1,11 +1,16 @@
 package pt.up.fe.els2023.model.table;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
+import pt.up.fe.els2023.load.YamlLoader;
 import pt.up.fe.els2023.model.table.values.StringValue;
 import pt.up.fe.els2023.model.table.values.TableValue;
+import pt.up.fe.els2023.utils.FileUtils.FileTypes;
+
+import static pt.up.fe.els2023.utils.FileUtils.getFileType;
 
 public class Table {
     private final ListOrderedMap<String, Column<?>> columns = new ListOrderedMap<>();
@@ -14,6 +19,7 @@ public class Table {
 
     }
 
+    @SuppressWarnings("unchecked")
     public static Table fromContents(Map<String, Object> contents) {
         Table table = new Table();
 
@@ -52,16 +58,26 @@ public class Table {
             else if (value instanceof Map<?, ?>)
                 table.addColumn(key, List.of(fromContents((Map<String, Object>) value)));
 
-            // Terminal value
+                // Terminal value
             else {
                 if (value == null)
                     value = "null";
-                
+
                 table.addColumn(key, Collections.singletonList(value));
             }
         }
 
         return table;
+    }
+
+    public static Table fromFile(File file) {
+        FileTypes fileType = getFileType(file);
+
+        Map<String, Object> contents = switch (fileType) {
+            case YAML -> new YamlLoader().load(file);
+        };
+
+        return Table.fromContents(contents);
     }
 
     public Table(List<String> headers) {
@@ -109,7 +125,7 @@ public class Table {
     public void addColumn(Column<?> column) {
         columns.put(column.getHeader(), column);
     }
-    
+
     public void addColumn(String header, List<Object> elements) {
         Column<?> column = new Column<>(header, elements);
 
@@ -117,9 +133,7 @@ public class Table {
     }
 
     public void removeRow(int index) {
-        columns.forEach((key, column) -> {
-            column.removeElement(index);
-        });
+        columns.forEach((key, column) -> column.removeElement(index));
     }
 
     public void removeColumn(String key) {
@@ -137,9 +151,7 @@ public class Table {
     public List<String> getHeaders() {
         List<String> headers = new ArrayList<>();
 
-        columns.forEach((key, value) -> {
-            headers.add(value.getHeader());
-        });
+        columns.forEach((key, value) -> headers.add(value.getHeader()));
 
         return headers;
     }
@@ -179,5 +191,15 @@ public class Table {
         }
 
         return true;
+    }
+
+    public Table selectByName(String fieldNames) {
+        var table = new Table();
+
+        for (var column : columns.entrySet())
+            if (fieldNames.contains(column.getKey()))
+                table.addColumn(column.getKey(), column.getValue().getElements());
+
+        return table;
     }
 }
