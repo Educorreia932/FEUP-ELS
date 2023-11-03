@@ -15,10 +15,6 @@ public class SelectionBuilder {
         return this;
     }
 
-    public void metadata() {
-
-    }
-
     public TableBuilder end() {
         tableBuilder.table = selections.merge();
 

@@ -1,6 +1,7 @@
 package pt.up.fe.els2023.model.table;
 
 import java.io.File;
+import java.security.KeyException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -97,8 +98,12 @@ public class Table {
         };
 
         Map<String, Object> contents = loader.load(file);
+        Table table = Table.fromContents(contents);
 
-        return Table.fromContents(contents);
+        // Metadata fields 
+        table.addColumn(String.valueOf(Metadata.FOLDER), Collections.singletonList(file.getParentFile().toString()));
+
+        return table;
     }
 
     public static Table concat(List<Table> tables) {
@@ -115,17 +120,16 @@ public class Table {
     public Table selectByName(String... fieldNames) {
         var table = new Table();
 
-        for (var columnEntry : columns.entrySet()) {
-            String fieldName = columnEntry.getKey();
-            Column<?> column = columnEntry.getValue();
+        for (String fieldName : fieldNames) {
+            Column<?> column = getColumn(fieldName);
 
             if (Arrays.asList(fieldNames).contains(fieldName)) {
                 // Composite value
                 if (column.getElement(0) instanceof Table subTable) {
-                    for (var subColumn: subTable.getColumns())
+                    for (var subColumn : subTable.getColumns())
                         table.addColumn(subColumn);
                 }
-                
+
                 // Terminal value
                 else
                     table.addColumn(column);
@@ -154,17 +158,24 @@ public class Table {
         if (header.contains(".")) {
             String[] parts = header.split("\\.");
             ListOrderedMap<String, Column<?>> auxColumns = columns;
+
             for (int i = 0; i < parts.length - 1; i++) {
                 Column<?> currentColumn = auxColumns.get(parts[i]);
-                for (Object object : currentColumn.getElements()) {
-                    if (object instanceof Table) {
+
+                for (Object object : currentColumn.getElements())
+                    if (object instanceof Table)
                         auxColumns = ((Table) object).columns;
-                    }
-                }
             }
+
             return auxColumns.get(parts[parts.length - 1]);
         }
-        return columns.get(header);
+
+        Column<?> column = columns.get(header);
+
+        if (column == null)
+            throw new RuntimeException("Table does not have field: " + header);
+
+        return column;
     }
 
     public Column<?> getColumn(int index) {
