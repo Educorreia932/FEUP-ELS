@@ -10,7 +10,7 @@ public class FileUtils {
     public enum FileTypes {
         YAML,
         HTML,
-        LATEX,
+        TEX,
         CSV
         // TODO: Accept more type of files
     }
