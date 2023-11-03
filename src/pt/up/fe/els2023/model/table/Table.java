@@ -178,6 +178,15 @@ public class Table {
         return table;
     }
 
+    public Table selectByType(ValueType valueType) {
+        var columns = switch (valueType) {
+            case TERMINAL -> getColumns().stream().filter(column -> !(column.getElement(0) instanceof Table));
+            case COMPOSITE -> getColumns().stream().filter(column -> column.getElement(0) instanceof Table);
+        };
+        
+        return new Table(columns.toArray(Column[]::new));
+    }
+
     public ArrayList<Object> getRow(int index) {
         return columns.values().stream()
             .map(column -> column.getElement(index))
