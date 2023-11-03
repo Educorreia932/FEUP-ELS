@@ -5,10 +5,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
+import pt.up.fe.els2023.load.JSONLoader;
+import pt.up.fe.els2023.load.Loader;
+import pt.up.fe.els2023.load.XMLLoader;
 import pt.up.fe.els2023.load.YamlLoader;
 import pt.up.fe.els2023.model.table.values.StringValue;
 import pt.up.fe.els2023.model.table.values.TableValue;
 import pt.up.fe.els2023.model.table.values.Value;
+import pt.up.fe.els2023.utils.FileUtils;
 
 import static pt.up.fe.els2023.utils.FileUtils.getFileType;
 
@@ -17,6 +21,19 @@ public class Table {
 
     public Table() {
 
+    }
+
+    public Table(Column<?>... columns) {
+        for (Column<?> column : columns)
+            this.columns.put(column.getHeader(), column);
+    }
+
+    public Table(List<String> headers) {
+        for (String header : headers) {
+            Column<?> column = new Column<>(header);
+
+            columns.put(column.getHeader(), column);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -71,21 +88,51 @@ public class Table {
     }
 
     public static Table fromFile(File file) {
-        FileTypes fileType = getFileType(file);
+        FileUtils.FileTypes fileType = getFileType(file);
 
-        Map<String, Object> contents = switch (fileType) {
-            case YAML -> new YamlLoader().load(file);
+        Loader loader = switch (fileType) {
+            case YAML -> new YamlLoader();
+            case XML -> new XMLLoader();
+            case JSON -> new JSONLoader();
         };
+
+        Map<String, Object> contents = loader.load(file);
 
         return Table.fromContents(contents);
     }
 
-    public Table(List<String> headers) {
-        for (String header : headers) {
-            Column<?> column = new Column<>(header);
+    public static Table concat(List<Table> tables) {
+        List<String> headers = tables.get(0).getHeaders();
+        Table result = new Table(headers);
 
-            columns.put(column.getHeader(), column);
+        for (Table table : tables)
+            for (List<?> row : table.getRows())
+                result.addRow(row);
+
+        return result;
+    }
+
+    public Table selectByName(String... fieldNames) {
+        var table = new Table();
+
+        for (var columnEntry : columns.entrySet()) {
+            String fieldName = columnEntry.getKey();
+            Column<?> column = columnEntry.getValue();
+
+            if (Arrays.asList(fieldNames).contains(fieldName)) {
+                // Composite value
+                if (column.getElement(0) instanceof Table subTable) {
+                    for (var subColumn: subTable.getColumns())
+                        table.addColumn(subColumn);
+                }
+                
+                // Terminal value
+                else
+                    table.addColumn(column);
+            }
         }
+
+        return table;
     }
 
     public ArrayList<Object> getRow(int index) {
@@ -107,7 +154,7 @@ public class Table {
         if (header.contains(".")) {
             String[] parts = header.split("\\.");
             ListOrderedMap<String, Column<?>> auxColumns = columns;
-            for (int i = 0; i < parts.length-1; i++) {
+            for (int i = 0; i < parts.length - 1; i++) {
                 Column<?> currentColumn = auxColumns.get(parts[i]);
                 for (Object object : currentColumn.getElements()) {
                     if (object instanceof Table) {
@@ -115,7 +162,7 @@ public class Table {
                     }
                 }
             }
-            return auxColumns.get(parts[parts.length-1]);
+            return auxColumns.get(parts[parts.length - 1]);
         }
         return columns.get(header);
     }
@@ -169,17 +216,10 @@ public class Table {
         return headers;
     }
 
-    public static Table concat(List<Table> tables) {
-        List<String> headers = tables.get(0).getHeaders();
-        Table result = new Table(headers);
-
-        for (Table table : tables)
-            for (List<?> row : table.getRows())
-                result.addRow(row);
-
-        return result;
+    public List<Column<?>> getColumns() {
+        return columns.valueList();
     }
-    
+
     @Override
     public boolean equals(Object object) {
         if (this == object)
@@ -206,13 +246,5 @@ public class Table {
         return true;
     }
 
-    public Table selectByName(String fieldNames) {
-        var table = new Table();
 
-        for (var column : columns.entrySet())
-            if (fieldNames.contains(column.getKey()))
-                table.addColumn(column.getKey(), column.getValue().getElements());
-
-        return table;
-    }
 }

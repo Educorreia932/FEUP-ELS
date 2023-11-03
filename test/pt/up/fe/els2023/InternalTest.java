@@ -9,7 +9,9 @@ public class InternalTest {
     public void test() {
         program()
             .load("resources/checkpoint1/data/decision_tree_1.yaml")
-                .selectByName("params")
+                .select()
+                    .fields("params")
+                .end()
             .end()
         .save("out.csv");
     }
