@@ -24,6 +24,7 @@ public class LoadInstruction implements Instruction {
         Map<String, Object> contents = switch (fileType) {
             case YAML -> new YamlLoader().load(file);
             // TODO: Add more cases
+            default -> throw new IllegalStateException("Unexpected value: " + fileType);
         };
 
         Table table = Table.fromContents(contents);

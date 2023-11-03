@@ -8,7 +8,10 @@ import java.util.List;
 
 public class FileUtils {
     public enum FileTypes {
-        YAML
+        YAML,
+        HTML,
+        LATEX,
+        CSV
         // TODO: Accept more type of files
     }
 

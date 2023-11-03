@@ -1,5 +1,6 @@
 package pt.up.fe.els2023.instructions;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -39,15 +40,25 @@ public class SaveInstruction implements Instruction {
             rowLines.add(stringList);
         }
 
+
+        File saveFile = new File("target/" + file);
+        FileUtils.FileTypes fileType = FileUtils.getFileType(new File(file));
+        switch (fileType) {
+            case CSV -> saveToCSV(saveFile, headerLines, rowLines);
+            case HTML -> saveToHTML(saveFile, headerLines, rowLines);
+            case LATEX -> saveToLatex();
+        }
+
+    }
+
+    private void saveToCSV(File saveFile, String[] headers, List<String[]> rows) {
         List<String[]> allLines = new ArrayList<>();
-        
-        allLines.add(headerLines);
-        allLines.addAll(rowLines);
-        
+        allLines.add(headers);
+        allLines.addAll(rows);
+
         try {
             FileUtils.createDirectory("target");
 
-            File saveFile = new File("target/" + file);
             FileWriter fileWriter = new FileWriter(saveFile);
             CSVWriter csvWriter = new CSVWriter(fileWriter);
 
@@ -58,5 +69,40 @@ public class SaveInstruction implements Instruction {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void saveToHTML(File saveFile, String[] headers, List<String[]> rows)  {
+        Table table = data.getTable(tableName);
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(saveFile))) {
+            writer.write("<html>");
+            writer.write("<head><title>Save File</title></head>");
+            writer.write("<body>");
+
+            writer.write("<table border=\"1\">");
+
+            writer.write("<tr>");
+            for (String header : headers) {
+                writer.write("<th>" + header + "</th>");
+            }
+            writer.write("</tr>");
+            for (String[] row : rows) {
+                writer.write("<tr>");
+                for (String cell : row) {
+                    writer.write("<td>" + cell + "</td>");
+                }
+                writer.write("</tr>");
+            }
+
+            writer.write("</table>");
+            writer.write("</body>");
+            writer.write("</html>");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } ;
+
+    }
+
+    private void saveToLatex() {
+
     }
 }
