@@ -1,7 +1,7 @@
 source:
-  - file: decision_tree_1.yaml
-  - file: decision_tree_2.yaml
-  - file: decision_tree_3.yaml
+  - file: data/decision_tree_1.yaml
+  - file: data/decision_tree_2.yaml
+  - file: data/decision_tree_3.yaml
 commands:
   - !select
     select:
