@@ -17,6 +17,10 @@ public class InternalTest {
                     )
                 .end()
             .end()
+            
+            .load("resources/checkpoint2/data/decision_tree.yaml")
+            .end()
+        .merge()
         .save("out.csv");
     }
 }

@@ -10,7 +10,7 @@ public class SelectionBuilder {
     }
 
     public SelectionBuilder fields(String... fieldNames) {
-        selections.addTable(tableBuilder.table.selectByName(fieldNames));
+        selections.add(tableBuilder.table.selectByName(fieldNames));
 
         return this;
     }

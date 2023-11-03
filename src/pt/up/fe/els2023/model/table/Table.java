@@ -1,10 +1,13 @@
 package pt.up.fe.els2023.model.table;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.security.KeyException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.opencsv.CSVWriter;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import pt.up.fe.els2023.load.JSONLoader;
 import pt.up.fe.els2023.load.Loader;
@@ -115,6 +118,42 @@ public class Table {
                 result.addRow(row);
 
         return result;
+    }
+    
+    public void save(String path) {
+        List<String> headers = getHeaders();
+        List<List<Object>> rows = getRows();
+
+        String[] headerLines = headers.toArray(String[]::new);
+        List<String[]> rowLines = new ArrayList<>();
+
+        for (List<?> row : rows) {
+            String[] stringList = row.stream()
+                .map(Object::toString)
+                .toArray(String[]::new);
+
+            rowLines.add(stringList);
+        }
+
+        List<String[]> allLines = new ArrayList<>();
+
+        allLines.add(headerLines);
+        allLines.addAll(rowLines);
+
+        try {
+            FileUtils.createDirectory("target");
+
+            File saveFile = new File("target/" + path);
+            FileWriter fileWriter = new FileWriter(saveFile);
+            CSVWriter csvWriter = new CSVWriter(fileWriter);
+
+            csvWriter.writeAll(allLines);
+            csvWriter.close();
+        }
+
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Table selectByName(String... fieldNames) {

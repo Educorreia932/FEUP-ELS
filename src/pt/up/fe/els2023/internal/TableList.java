@@ -13,10 +13,6 @@ public class TableList {
         tables = new ArrayList<>();
     }
 
-    public void addTable(Table table) {
-        tables.add(table);
-    }
-
     public Table merge() {
         List<Column<?>> columns = new ArrayList<>();
 
@@ -24,5 +20,13 @@ public class TableList {
             columns.addAll(table.getColumns());
 
         return new Table(columns.toArray(Column[]::new));
+    }
+
+    public void add(Table table) {
+        tables.add(table);
+    }
+
+    public Table get(int index) {
+        return tables.get(0);
     }
 }
