@@ -6,21 +6,25 @@ import java.io.File;
 
 public class Program {
     private final TableList tables;
+    private String folderName;
 
     private Program() {
         tables = new TableList();
+        folderName = "";
     }
     
     public static Program program() {
         return new Program();
     }
     
-    void addTable(Table table) {
-        tables.add(table);
+    public Program withFolder(String folderName) {
+        this.folderName = folderName;
+        
+        return this;
     }
 
     public TableBuilder load(String path) {
-        File file = new File(path);
+        File file = new File(folderName + path);
         Table loadedTable = Table.fromFile(file);
         
         return new TableBuilder(this, loadedTable);
@@ -28,5 +32,9 @@ public class Program {
 
     public Table merge() {
         return tables.merge();
+    }
+
+    void addTable(Table table) {
+        tables.add(table);
     }
 }
