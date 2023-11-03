@@ -1,5 +1,7 @@
 package pt.up.fe.els2023.instructions;
 
+import pt.up.fe.els2023.load.JSONLoader;
+import pt.up.fe.els2023.load.XMLLoader;
 import pt.up.fe.els2023.load.YamlLoader;
 import pt.up.fe.els2023.model.DataContext;
 import pt.up.fe.els2023.model.table.Table;
@@ -7,6 +9,8 @@ import pt.up.fe.els2023.utils.FileUtils;
 
 import java.io.File;
 import java.util.Map;
+
+import static java.lang.System.exit;
 
 public class LoadInstruction implements Instruction {
     private final DataContext dataContext;
@@ -23,6 +27,8 @@ public class LoadInstruction implements Instruction {
 
         Map<String, Object> contents = switch (fileType) {
             case YAML -> new YamlLoader().load(file);
+            case XML -> new XMLLoader().load(file);
+            case JSON -> new JSONLoader().load(file);
             // TODO: Add more cases
         };
 

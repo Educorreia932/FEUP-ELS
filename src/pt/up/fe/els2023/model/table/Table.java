@@ -8,7 +8,7 @@ import org.apache.commons.collections4.map.ListOrderedMap;
 import pt.up.fe.els2023.load.YamlLoader;
 import pt.up.fe.els2023.model.table.values.StringValue;
 import pt.up.fe.els2023.model.table.values.TableValue;
-import pt.up.fe.els2023.utils.FileUtils.FileTypes;
+import pt.up.fe.els2023.model.table.values.Value;
 
 import static pt.up.fe.els2023.utils.FileUtils.getFileType;
 
@@ -104,6 +104,19 @@ public class Table {
     }
 
     public Column<?> getColumn(String header) {
+        if (header.contains(".")) {
+            String[] parts = header.split("\\.");
+            ListOrderedMap<String, Column<?>> auxColumns = columns;
+            for (int i = 0; i < parts.length-1; i++) {
+                Column<?> currentColumn = auxColumns.get(parts[i]);
+                for (Object object : currentColumn.getElements()) {
+                    if (object instanceof Table) {
+                        auxColumns = ((Table) object).columns;
+                    }
+                }
+            }
+            return auxColumns.get(parts[parts.length-1]);
+        }
         return columns.get(header);
     }
 
