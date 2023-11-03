@@ -11,7 +11,8 @@ import java.util.List;
 public class FileUtils {
     public enum FileTypes {
         YAML,
-        XML
+        XML,
+        JSON
         // TODO: Accept more type of files
     }
 

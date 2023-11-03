@@ -1,5 +1,6 @@
 package pt.up.fe.els2023.instructions;
 
+import pt.up.fe.els2023.load.JSONLoader;
 import pt.up.fe.els2023.load.XMLLoader;
 import pt.up.fe.els2023.load.YamlLoader;
 import pt.up.fe.els2023.model.DataContext;
@@ -27,6 +28,7 @@ public class LoadInstruction implements Instruction {
         Map<String, Object> contents = switch (fileType) {
             case YAML -> new YamlLoader().load(file);
             case XML -> new XMLLoader().load(file);
+            case JSON -> new JSONLoader().load(file);
             // TODO: Add more cases
         };
 
