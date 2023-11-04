@@ -154,31 +154,19 @@ public class Table {
         allLines.add(headerLines);
         allLines.addAll(rowLines);
 
-        try {
-            FileUtils.createDirectory("target");
+        FileUtils.createDirectory("target");
 
-            File saveFile = new File("target/" + path);
-            FileUtils.FileTypes fileType = FileUtils.getFileType(new File(path));
-            
-            Saver saver = switch (fileType) {
-                case CSV -> new CSVSaver();
-                case HTML -> new HTMLSaver();
-                case TEX -> new LatexSaver();
-                case YAML, JSON, XML -> throw new RuntimeException("Filetype not supported");
-            };
-            
-            saver.save(saveFile, headerLines, rowLines);
-
-            FileWriter fileWriter = new FileWriter(saveFile);
-            CSVWriter csvWriter = new CSVWriter(fileWriter);
-
-            csvWriter.writeAll(allLines);
-            csvWriter.close();
-        }
-
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        File saveFile = new File("target/" + path);
+        FileUtils.FileTypes fileType = FileUtils.getFileType(new File(path));
+        
+        Saver saver = switch (fileType) {
+            case CSV -> new CSVSaver();
+            case HTML -> new HTMLSaver();
+            case TEX -> new LatexSaver();
+            case YAML, JSON, XML -> throw new RuntimeException("Filetype not supported");
+        };
+        
+        saver.save(saveFile, headerLines, rowLines);
     }
 
     public Table selectByName(String... fieldNames) {
