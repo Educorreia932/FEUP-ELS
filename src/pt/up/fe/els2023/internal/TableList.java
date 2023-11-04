@@ -35,6 +35,9 @@ public class TableList {
     }
 
     public Table concat(String... headers) {
+        if (headers.length == 0)
+            headers = tables.get(0).getHeaders().toArray(String[]::new);
+        
         Table concatenatedTable = new Table(headers);
 
         for (Table table : tables) {

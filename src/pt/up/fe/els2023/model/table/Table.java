@@ -109,6 +109,7 @@ public class Table {
 
         // Metadata fields 
         table.addColumn(String.valueOf(Metadata.FOLDER), Collections.singletonList(file.getParentFile().toString()));
+        table.addColumn(String.valueOf(Metadata.FILENAME), Collections.singletonList(file.getName()));
 
         return table;
     }
@@ -158,14 +159,14 @@ public class Table {
 
         File saveFile = new File("target/" + path);
         FileUtils.FileTypes fileType = FileUtils.getFileType(new File(path));
-        
+
         Saver saver = switch (fileType) {
             case CSV -> new CSVSaver();
             case HTML -> new HTMLSaver();
             case TEX -> new LatexSaver();
             case YAML, JSON, XML -> throw new RuntimeException("Filetype not supported");
         };
-        
+
         saver.save(saveFile, headerLines, rowLines);
     }
 
@@ -198,6 +199,15 @@ public class Table {
         };
 
         return new Table(columns.toArray(Column[]::new));
+    }
+
+    public Table rename(String field, String newName) {
+        Column<?> column = columns.remove(field);
+        
+        column.setHeader(newName);
+        columns.put(newName, column);
+
+        return this;
     }
 
     public ArrayList<Object> getRow(int index) {
@@ -317,4 +327,6 @@ public class Table {
 
         return true;
     }
+
+
 }

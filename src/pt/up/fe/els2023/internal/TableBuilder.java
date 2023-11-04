@@ -39,6 +39,12 @@ public class TableBuilder {
         return this;
     }
 
+    public TableBuilder rename(String field, String newName) {
+        table = table.rename(field, newName);
+        
+        return this;
+    }
+    
     public Program end() {
         program.addTable(table);
 

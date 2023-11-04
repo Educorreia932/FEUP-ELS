@@ -1,6 +1,7 @@
 package pt.up.fe.els2023.internal;
 
 import pt.up.fe.els2023.model.table.Table;
+import pt.up.fe.els2023.save.Saver;
 
 import java.io.File;
 
@@ -32,6 +33,10 @@ public class Program {
 
     public Table merge() {
         return tables.merge();
+    }
+
+    public Table concat() {
+        return tables.concat();
     }
 
     void addTable(Table table) {
