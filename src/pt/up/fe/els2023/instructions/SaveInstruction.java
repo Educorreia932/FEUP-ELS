@@ -1,5 +1,6 @@
 package pt.up.fe.els2023.instructions;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,6 +10,9 @@ import java.util.List;
 import com.opencsv.CSVWriter;
 import pt.up.fe.els2023.model.DataContext;
 import pt.up.fe.els2023.model.table.Table;
+import pt.up.fe.els2023.save.CSVSaver;
+import pt.up.fe.els2023.save.HTMLSaver;
+import pt.up.fe.els2023.save.LatexSaver;
 import pt.up.fe.els2023.utils.FileUtils;
 
 public class SaveInstruction implements Instruction {
@@ -39,24 +43,14 @@ public class SaveInstruction implements Instruction {
             rowLines.add(stringList);
         }
 
-        List<String[]> allLines = new ArrayList<>();
-        
-        allLines.add(headerLines);
-        allLines.addAll(rowLines);
-        
-        try {
-            FileUtils.createDirectory("target");
 
-            File saveFile = new File("target/" + file);
-            FileWriter fileWriter = new FileWriter(saveFile);
-            CSVWriter csvWriter = new CSVWriter(fileWriter);
-
-            csvWriter.writeAll(allLines);
-            csvWriter.close();
+        File saveFile = new File("target/" + file);
+        FileUtils.FileTypes fileType = FileUtils.getFileType(new File(file));
+        switch (fileType) {
+            case CSV -> new CSVSaver().save(saveFile, headerLines, rowLines);
+            case HTML -> new HTMLSaver().save(saveFile, headerLines, rowLines);
+            case TEX -> new LatexSaver().save(saveFile, headerLines, rowLines);
         }
 
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

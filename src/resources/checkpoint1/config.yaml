@@ -30,5 +30,5 @@ commands:
         target: result
 
 target:
-  - file: output.csv
+  - file: output.html
     table: result
