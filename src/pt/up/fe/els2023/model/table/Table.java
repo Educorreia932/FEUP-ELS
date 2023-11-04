@@ -15,6 +15,10 @@ import pt.up.fe.els2023.load.XMLLoader;
 import pt.up.fe.els2023.load.YamlLoader;
 import pt.up.fe.els2023.model.table.values.StringValue;
 import pt.up.fe.els2023.model.table.values.TableValue;
+import pt.up.fe.els2023.save.CSVSaver;
+import pt.up.fe.els2023.save.HTMLSaver;
+import pt.up.fe.els2023.save.LatexSaver;
+import pt.up.fe.els2023.save.Saver;
 import pt.up.fe.els2023.utils.FileUtils;
 
 import static pt.up.fe.els2023.utils.FileUtils.getFileType;
@@ -97,6 +101,7 @@ public class Table {
             case YAML -> new YamlLoader();
             case XML -> new XMLLoader();
             case JSON -> new JSONLoader();
+            case HTML, TEX, CSV -> throw new RuntimeException("Filetype not supported");
         };
 
         Map<String, Object> contents = loader.load(file);
@@ -153,6 +158,17 @@ public class Table {
             FileUtils.createDirectory("target");
 
             File saveFile = new File("target/" + path);
+            FileUtils.FileTypes fileType = FileUtils.getFileType(new File(path));
+            
+            Saver saver = switch (fileType) {
+                case CSV -> new CSVSaver();
+                case HTML -> new HTMLSaver();
+                case TEX -> new LatexSaver();
+                case YAML, JSON, XML -> throw new RuntimeException("Filetype not supported");
+            };
+            
+            saver.save(saveFile, headerLines, rowLines);
+
             FileWriter fileWriter = new FileWriter(saveFile);
             CSVWriter csvWriter = new CSVWriter(fileWriter);
 

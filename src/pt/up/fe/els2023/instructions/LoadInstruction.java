@@ -30,6 +30,7 @@ public class LoadInstruction implements Instruction {
             case XML -> new XMLLoader().load(file);
             case JSON -> new JSONLoader().load(file);
             // TODO: Add more cases
+            default -> throw new IllegalStateException("Unexpected value: " + fileType);
         };
 
         Table table = Table.fromContents(contents);
