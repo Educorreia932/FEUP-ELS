@@ -14,13 +14,13 @@ public class InternalTest {
             
             .load("decision_tree_1.yaml")
                 .select()
-                    .fields(Metadata.FILENAME.toString(), "params")
+                    .fields(Metadata.FILENAME.toString())
+            
+                    .from("params")
+                        .fields("criterion", "splitter", "ccp_alpha", "min_samples_split")
+                    .end()
                 .end()
 
-                .select()
-                    .fields(Metadata.FILENAME.toString(), "criterion", "splitter", "ccp_alpha", "min_samples_split")
-                .end()
-            
                 .rename(Metadata.FILENAME.toString(), "File")
                 .rename("criterion", "Criterion")
                 .rename("splitter", "Splitter")

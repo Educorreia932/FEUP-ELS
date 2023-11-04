@@ -11,6 +11,10 @@ public class SelectionBuilder {
         this.selections = new TableList();
     }
 
+    public FromSelectionBuilder from(String fromField) {
+        return new FromSelectionBuilder(this, fromField, selections, tableBuilder);
+    }
+
     public SelectionBuilder fields(String... fieldNames) {
         selections.add(tableBuilder.table.selectByName(fieldNames));
 
