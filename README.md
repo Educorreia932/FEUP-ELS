@@ -5,8 +5,14 @@ For this project, you need to [install Gradle](https://gradle.org/install/)
 ## Checkpoints
 
 [Checkpoint 1](./docs/checkpoints/Checkpoint_1.md): 2023/10/03
+
+
 Checkpoint 2: 2023/11/07
+
+
 Checkpoint 3: 2023/12/12 
+
+
 
 ## Project setup
 
