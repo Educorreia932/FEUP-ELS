@@ -15,7 +15,6 @@ import pt.up.fe.els2023.load.XMLLoader;
 import pt.up.fe.els2023.load.YamlLoader;
 import pt.up.fe.els2023.model.table.values.StringValue;
 import pt.up.fe.els2023.model.table.values.TableValue;
-import pt.up.fe.els2023.model.table.values.Value;
 import pt.up.fe.els2023.utils.FileUtils;
 
 import static pt.up.fe.els2023.utils.FileUtils.getFileType;
@@ -32,7 +31,7 @@ public class Table {
             this.columns.put(column.getHeader(), column);
     }
 
-    public Table(List<String> headers) {
+    public Table(String... headers) {
         for (String header : headers) {
             Column<?> column = new Column<>(header);
 
@@ -111,7 +110,7 @@ public class Table {
 
     public static Table concat(List<Table> tables) {
         List<String> headers = tables.get(0).getHeaders();
-        Table result = new Table(headers);
+        Table result = new Table(headers.toArray(String[]::new));
 
         for (Table table : tables)
             for (List<?> row : table.getRows())
@@ -119,7 +118,17 @@ public class Table {
 
         return result;
     }
-    
+
+    public Table slice(int fromIndex, int toIndex) {
+        Table table = new Table(getHeaders().toArray(String[]::new));
+        var rows = getRows().subList(fromIndex, toIndex);
+
+        for (var row : rows)
+            table.addRow(row);
+
+        return table;
+    }
+
     public void save(String path) {
         List<String> headers = getHeaders();
         List<List<Object>> rows = getRows();
@@ -183,7 +192,7 @@ public class Table {
             case TERMINAL -> getColumns().stream().filter(column -> !(column.getElement(0) instanceof Table));
             case COMPOSITE -> getColumns().stream().filter(column -> column.getElement(0) instanceof Table);
         };
-        
+
         return new Table(columns.toArray(Column[]::new));
     }
 
@@ -304,6 +313,4 @@ public class Table {
 
         return true;
     }
-
-
 }

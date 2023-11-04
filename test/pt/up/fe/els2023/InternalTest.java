@@ -32,7 +32,12 @@ public class InternalTest {
             // Table 3
             .load("profiling.json")
                 .select()
+                    .fields("functions")
                 .end()
+            
+                .concat("name", "time%")
+            
+                .max("time%")
             .end()
         .merge()
         .save("Assignment 2.csv");

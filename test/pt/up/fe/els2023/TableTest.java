@@ -22,11 +22,9 @@ public class TableTest {
     @Before
     public void initialize() {
         table = new Table(
-            Arrays.asList(
-                "First name",
-                "Last name",
-                "Age"
-            )
+            "First name",
+            "Last name",
+            "Age"
         );
     }
 

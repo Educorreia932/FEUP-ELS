@@ -12,6 +12,18 @@ public class TableList {
     public TableList() {
         tables = new ArrayList<>();
     }
+    
+    public static TableList fromArrayTable(Table table) {
+        TableList tableList = new TableList();
+        
+        for (Column<?> column : table.getColumns()) {
+            Table subTable = (Table) column.getElements().get(0);
+            
+            tableList.add(subTable);
+        }
+        
+        return tableList;
+    }
 
     public Table merge() {
         List<Column<?>> columns = new ArrayList<>();
@@ -22,11 +34,29 @@ public class TableList {
         return new Table(columns.toArray(Column[]::new));
     }
 
-    public void add(Table table) {
-        tables.add(table);
+    public Table concat(String... headers) {
+        Table concatenatedTable = new Table(headers);
+
+        for (Table table : tables) {
+            List<Object> row = new ArrayList<>();
+            
+            for (String header : headers) {
+                Column<?> column = table.getColumn(header);
+                
+                if (column == null)
+                    row.add(null);
+                    
+                else
+                    row.add(column.getElements().get(0));
+            }
+
+            concatenatedTable.addRow(row);
+        }
+            
+        return concatenatedTable;
     }
 
-    public Table get(int index) {
-        return tables.get(0);
+    public void add(Table table) {
+        tables.add(table);
     }
 }

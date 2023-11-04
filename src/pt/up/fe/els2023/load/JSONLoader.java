@@ -20,10 +20,6 @@ public class JSONLoader implements Loader{
 
             Map<String, Object> jsonMap = gson.fromJson(reader, type);
 
-            for (Map.Entry<String, Object> entry : jsonMap.entrySet()) {
-                System.out.println(entry.getKey() + ": " + entry.getValue());
-            }
-
             return jsonMap;
         } catch(IOException e) {
             e.printStackTrace();
