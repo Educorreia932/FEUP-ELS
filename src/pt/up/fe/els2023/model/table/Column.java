@@ -1,6 +1,5 @@
 package pt.up.fe.els2023.model.table;
 
-import org.apache.commons.collections.map.ListOrderedMap;
 import pt.up.fe.els2023.model.table.values.DoubleValue;
 import pt.up.fe.els2023.model.table.values.IntegerValue;
 import pt.up.fe.els2023.model.table.values.StringValue;
@@ -22,11 +21,11 @@ public class Column<T extends Value> {
         convertToValue.put(String.class, StringValue::new);
         convertToValue.put(Table.class, TableValue::new);
     }
-    
+
     public Column(String header) {
         this.header = header;
     }
-    
+
     public Column(String header, List<Object> elements) {
         this.header = header;
 
@@ -36,6 +35,11 @@ public class Column<T extends Value> {
 
     public List<Object> getElements() {
         return elements.stream().map(Value::value).toList();
+    }
+
+    public void addElements(Object... elements) {
+        for (Object element : elements)
+            addElement(element);
     }
 
     @SuppressWarnings("unchecked")
@@ -62,4 +66,6 @@ public class Column<T extends Value> {
     public int numElements() {
         return elements.size();
     }
+
+
 }

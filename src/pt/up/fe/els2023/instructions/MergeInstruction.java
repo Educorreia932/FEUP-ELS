@@ -21,7 +21,7 @@ public class MergeInstruction implements Instruction {
     public void execute() {
         List<Table> tables = sources.stream().map(data::getTable).toList();
 
-        Table output = Table.concat(tables);
+        Table output = Table.concat(tables.toArray(Table[]::new));
 
         data.addTable(target, output);
     }

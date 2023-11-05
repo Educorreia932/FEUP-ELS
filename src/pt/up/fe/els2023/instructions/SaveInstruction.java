@@ -28,29 +28,6 @@ public class SaveInstruction implements Instruction {
 
     @Override
     public void execute() {
-        Table table = data.getTable(tableName);
-        List<String> headers = table.getHeaders();
-        List<List<Object>> rows = table.getRows();
-
-        String[] headerLines = headers.toArray(String[]::new);
-        List<String[]> rowLines = new ArrayList<>();
-
-        for (List<?> row : rows) {
-            String[] stringList = row.stream()
-                .map(Object::toString)
-                .toArray(String[]::new);
-
-            rowLines.add(stringList);
-        }
-
-
-        File saveFile = new File("target/" + file);
-        FileUtils.FileTypes fileType = FileUtils.getFileType(new File(file));
-        switch (fileType) {
-            case CSV -> new CSVSaver().save(saveFile, headerLines, rowLines);
-            case HTML -> new HTMLSaver().save(saveFile, headerLines, rowLines);
-            case TEX -> new LatexSaver().save(saveFile, headerLines, rowLines);
-        }
-
+        data.getTable(tableName).save(file);
     }
 }
