@@ -3,6 +3,7 @@ package pt.up.fe.els2023.model.table;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
 import pt.up.fe.els2023.internal.Selection;
@@ -163,32 +164,36 @@ public class Table {
     }
 
     public Table selectColumnsByType(ValueType valueType) {
-        var columns = switch (valueType) {
+        Stream<Column<?>> columns = switch (valueType) {
             case TERMINAL -> getColumns().stream().filter(column -> !(column.getElement(0) instanceof Table));
             case COMPOSITE -> getColumns().stream().filter(column -> column.getElement(0) instanceof Table);
         };
+
+        List<String> metadataFields = Arrays.stream(Metadata.values()).map(Objects::toString).toList();
+        columns = columns.filter(column -> !metadataFields.contains(column.getHeader()));
 
         return new Table(columns.toArray(Column[]::new));
     }
 
     public Table rename(String field, String newName) {
+        int index = columns.indexOf(field);
         Column<?> column = columns.remove(field);
 
         column.setHeader(newName);
-        columns.put(newName, column);
+        columns.put(index, newName, column);
 
         return this;
     }
 
     public Table unflatten() {
         List<Table> tables = new ArrayList<>();
-        
+
         for (Column<?> column : getColumns()) {
             Table subTable = (Table) column.getElements().get(0);
 
             tables.add(subTable);
         }
-        
+
         return concat(tables.toArray(Table[]::new));
     }
 
@@ -391,5 +396,4 @@ public class Table {
     }
 
 
-    
 }

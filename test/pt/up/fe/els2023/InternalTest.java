@@ -67,6 +67,7 @@ public class InternalTest {
             
                 .max("time%")
         )
+        .rename(Metadata.FOLDER.toString(), "Folder")
         .save("Assignment 2.html");
     }
 }
