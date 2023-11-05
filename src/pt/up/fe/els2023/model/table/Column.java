@@ -21,11 +21,11 @@ public class Column<T extends Value> {
         convertToValue.put(String.class, StringValue::new);
         convertToValue.put(Table.class, TableValue::new);
     }
-    
+
     public Column(String header) {
         this.header = header;
     }
-    
+
     public Column(String header, List<Object> elements) {
         this.header = header;
 
@@ -35,6 +35,11 @@ public class Column<T extends Value> {
 
     public List<Object> getElements() {
         return elements.stream().map(Value::value).toList();
+    }
+
+    public void addElements(Object... elements) {
+        for (Object element : elements)
+            addElement(element);
     }
 
     @SuppressWarnings("unchecked")
@@ -61,4 +66,6 @@ public class Column<T extends Value> {
     public int numElements() {
         return elements.size();
     }
+
+
 }

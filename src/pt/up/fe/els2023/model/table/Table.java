@@ -1,14 +1,11 @@
 package pt.up.fe.els2023.model.table;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.security.KeyException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.opencsv.CSVWriter;
 import org.apache.commons.collections4.map.ListOrderedMap;
+import pt.up.fe.els2023.internal.Selection;
 import pt.up.fe.els2023.load.JSONLoader;
 import pt.up.fe.els2023.load.Loader;
 import pt.up.fe.els2023.load.XMLLoader;
@@ -94,6 +91,12 @@ public class Table {
         return table;
     }
 
+    public static Table load(String path) {
+        File file = new File(path);
+
+        return fromFile(file);
+    }
+
     public static Table fromFile(File file) {
         FileUtils.FileTypes fileType = getFileType(file);
 
@@ -114,17 +117,6 @@ public class Table {
         return table;
     }
 
-    public static Table concat(List<Table> tables) {
-        List<String> headers = tables.get(0).getHeaders();
-        Table result = new Table(headers.toArray(String[]::new));
-
-        for (Table table : tables)
-            for (List<?> row : table.getRows())
-                result.addRow(row);
-
-        return result;
-    }
-
     public Table slice(int fromIndex, int toIndex) {
         Table table = new Table(getHeaders().toArray(String[]::new));
         var rows = getRows().subList(fromIndex, toIndex);
@@ -133,6 +125,116 @@ public class Table {
             table.addRow(row);
 
         return table;
+    }
+
+    public Selection select() {
+        return new Selection(this);
+    }
+
+    public Table selectColumnsByName(String... fieldNames) {
+        var table = new Table();
+
+        for (String fieldName : fieldNames) {
+            Column<?> selectedColumn = getColumn(fieldName);
+
+            if (Arrays.asList(fieldNames).contains(fieldName)) {
+                // Composite value
+                if (selectedColumn.getElement(0) instanceof Table) {
+                    for (var subTable : selectedColumn.getElements()) {
+                        for (var subColumn : ((Table) subTable).getColumns()) {
+                            boolean hasColumn = table.getHeaders().contains(subColumn.getHeader());
+
+                            if (!hasColumn)
+                                table.addColumn(subColumn);
+
+                            else
+                                table.getColumn(subColumn.getHeader()).addElements(subColumn.getElements().toArray());
+                        }
+                    }
+                }
+
+                // Terminal value
+                else
+                    table.addColumn(selectedColumn);
+            }
+        }
+
+        return table;
+    }
+
+    public Table selectColumnsByType(ValueType valueType) {
+        var columns = switch (valueType) {
+            case TERMINAL -> getColumns().stream().filter(column -> !(column.getElement(0) instanceof Table));
+            case COMPOSITE -> getColumns().stream().filter(column -> column.getElement(0) instanceof Table);
+        };
+
+        return new Table(columns.toArray(Column[]::new));
+    }
+
+    public Table rename(String field, String newName) {
+        Column<?> column = columns.remove(field);
+
+        column.setHeader(newName);
+        columns.put(newName, column);
+
+        return this;
+    }
+
+    public Table unflatten() {
+        List<Table> tables = new ArrayList<>();
+        
+        for (Column<?> column : getColumns()) {
+            Table subTable = (Table) column.getElements().get(0);
+
+            tables.add(subTable);
+        }
+        
+        return concat(tables.toArray(Table[]::new));
+    }
+
+    public Table max(String field) {
+        List<Object> elements = getColumn(field).getElements();
+
+        if (!(elements.get(0) instanceof Number))
+            throw new RuntimeException("Column is not of numberic type.");
+
+        List<Double> numberList = elements.stream().map(e -> (Double) e).toList();
+        int index = numberList.indexOf(Collections.max(numberList));
+
+        return slice(index, index + 1);
+    }
+
+    public static Table merge(Table... tables) {
+        List<Column<?>> columns = new ArrayList<>();
+
+        for (Table table : tables)
+            columns.addAll(table.getColumns());
+
+        return new Table(columns.toArray(Column[]::new));
+    }
+
+    public static Table concat(Table... tables) {
+        var headers = tables[0].getHeaders().toArray(String[]::new);
+
+        Table concatenatedTable = new Table(headers);
+
+        for (Table table : tables) {
+            List<Object> row = new ArrayList<>();
+
+            for (String header : headers) {
+                Column<?> column = table.getColumn(header);
+
+                if (column == null)
+                    row.add(null);
+
+                else
+                    row.add(column.getElements().get(0));
+            }
+
+            concatenatedTable.addRow(row);
+        }
+
+        return concatenatedTable;
     }
 
     public void save(String path) {
@@ -168,46 +270,6 @@ public class Table {
         };
 
         saver.save(saveFile, headerLines, rowLines);
-    }
-
-    public Table selectByName(String... fieldNames) {
-        var table = new Table();
-
-        for (String fieldName : fieldNames) {
-            Column<?> column = getColumn(fieldName);
-
-            if (Arrays.asList(fieldNames).contains(fieldName)) {
-                // Composite value
-                if (column.getElement(0) instanceof Table subTable) {
-                    for (var subColumn : subTable.getColumns())
-                        table.addColumn(subColumn);
-                }
-
-                // Terminal value
-                else
-                    table.addColumn(column);
-            }
-        }
-
-        return table;
-    }
-
-    public Table selectByType(ValueType valueType) {
-        var columns = switch (valueType) {
-            case TERMINAL -> getColumns().stream().filter(column -> !(column.getElement(0) instanceof Table));
-            case COMPOSITE -> getColumns().stream().filter(column -> column.getElement(0) instanceof Table);
-        };
-
-        return new Table(columns.toArray(Column[]::new));
-    }
-
-    public Table rename(String field, String newName) {
-        Column<?> column = columns.remove(field);
-        
-        column.setHeader(newName);
-        columns.put(newName, column);
-
-        return this;
     }
 
     public ArrayList<Object> getRow(int index) {
@@ -329,4 +391,5 @@ public class Table {
     }
 
 
+    
 }

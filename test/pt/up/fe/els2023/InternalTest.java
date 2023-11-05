@@ -4,68 +4,69 @@ import org.junit.Test;
 import pt.up.fe.els2023.model.table.Metadata;
 import pt.up.fe.els2023.model.table.ValueType;
 
-import static pt.up.fe.els2023.internal.Program.*;
+import static pt.up.fe.els2023.model.table.Table.*;
 
 public class InternalTest {
     @Test 
     public void assignment1() {
-        program()
-            .withFolder("resources/checkpoint1/data/")
+        concat(
+            // Import tables
+            load("resources/checkpoint1/data/decision_tree_1.yaml"),
+            load("resources/checkpoint1/data/decision_tree_2.yaml"),
+            load("resources/checkpoint1/data/decision_tree_3.yaml")
+        ) // Join tables
             
-            .load("decision_tree_1.yaml")
-                .select()
-                    .fields(Metadata.FILENAME.toString())
-            
-                    .from("params")
-                        .fields("criterion", "splitter", "ccp_alpha", "min_samples_split")
-                    .end()
-                .end()
-
-                .rename(Metadata.FILENAME.toString(), "File")
-                .rename("criterion", "Criterion")
-                .rename("splitter", "Splitter")
-                .rename("ccp_alpha", "CCP Alpha")
-                .rename("min_samples_split", "Min Samples Split")
+        // Apply transformations
+        .select()
+            .fields(Metadata.FILENAME.toString())
+            .from("params")
+                .fields("criterion", "splitter", "ccp_alpha", "min_samples_split")
             .end()
+        .end()
             
-            .concat()
+        .rename(Metadata.FILENAME.toString(), "File")
+        .rename("criterion", "Criterion")
+        .rename("splitter", "Splitter")
+        .rename("ccp_alpha", "CCP Alpha")
+        .rename("min_samples_split", "Min Samples Split")
+            
+        // Export result
         .save("Assignment 1.csv");
     }
     
     @Test
     public void assignment2() {
-        program()
-            .withFolder("resources/checkpoint2/data/")
-            
+        merge(
             // Table 1
-            .load("vitis-report.xml")
+            load("resources/checkpoint2/data/vitis-report.xml")
                 .select()
                     .fields(
                         Metadata.FOLDER.toString(),
                         "profile.AreaEstimates.Resources"
                     )
-                .end()
-            .end()
+                .end(),
 
             // Table 2
-            .load("decision_tree.yaml")
+            load("resources/checkpoint2/data/decision_tree.yaml")
                 .select()
                     .type(ValueType.TERMINAL)
                     .fields("params")
-                .end()
-            .end()
-            
+                .end(),
+
             // Table 3
-            .load("profiling.json")
+            load("resources/checkpoint2/data/profiling.json")
                 .select()
                     .fields("functions")
                 .end()
             
-                .concat("name", "time%")
+                .unflatten()
+
+                .select()
+                    .fields("name", "time%")
+                .end()
             
                 .max("time%")
-            .end()
-        .merge()
+        )
         .save("Assignment 2.html");
     }
 }
