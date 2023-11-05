@@ -197,6 +197,18 @@ public class Table {
         return concat(tables.toArray(Table[]::new));
     }
 
+    public Table min(String field) {
+        List<Object> elements = getColumn(field).getElements(); 
+
+        if (!(elements.get(0) instanceof Number))
+            throw new RuntimeException("Column is not of numberic type.");
+
+        List<Double> numberList = elements.stream().map(e -> (Double) e).toList();
+        int index = numberList.indexOf(Collections.min(numberList));
+
+        return slice(index, index + 1);
+    }
+
     public Table max(String field) {
         List<Object> elements = getColumn(field).getElements();
 
