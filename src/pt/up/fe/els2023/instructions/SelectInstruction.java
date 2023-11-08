@@ -1,12 +1,11 @@
 package pt.up.fe.els2023.instructions;
 
 import pt.up.fe.els2023.config.fields.commands.KeysField;
-import pt.up.fe.els2023.model.DataSingleton;
-import pt.up.fe.els2023.model.FileData;
+import pt.up.fe.els2023.model.DataContext;
+import pt.up.fe.els2023.model.table.Column;
 import pt.up.fe.els2023.model.table.Table;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 enum SelectionType {
     FROM,
@@ -14,7 +13,7 @@ enum SelectionType {
 }
 
 public class SelectInstruction implements Instruction {
-    private final DataSingleton data;
+    private final DataContext dataContext;
 
     // From selection
     private String from = null;
@@ -23,57 +22,60 @@ public class SelectInstruction implements Instruction {
     // Metadata selection
     private String metadata = null;
     private String rename = null;
-    
+
     private final SelectionType selectionType;
 
     // TODO: Split into two separate instructions (?)
-    public SelectInstruction(DataSingleton data, String from, List<KeysField> keysFields) {
-        this.data = data;
+    public SelectInstruction(DataContext dataContext, String from, List<KeysField> keysFields) {
+        this.dataContext = dataContext;
         this.from = from;
         this.keysFields = keysFields;
         this.selectionType = SelectionType.FROM;
     }
 
-    public SelectInstruction(DataSingleton data, String metadata, String rename) {
-        this.data = data;
+    public SelectInstruction(DataContext data, String metadata, String rename) {
+        this.dataContext = data;
         this.metadata = metadata;
         this.rename = rename;
         this.selectionType = SelectionType.METADATA;
     }
-    
+
     @Override
     public void execute() {
-        List<Table> tables = data.getTables();
-        List<FileData> filesData = data.getFilesData();
-        
+        List<List<Object>> entries = dataContext.getEntries();
+
         switch (this.selectionType) {
             case FROM:
-                for (int i = 0; i < tables.size(); i++) {
-                    Table table = tables.get(i);
-                    FileData fileData = filesData.get(i);
-                    Map<String, Object> fileContent = fileData.contents();
-                    Map<String, Object> values = fileContent;
-                    
-                    for (String fieldName : from.split("\\.")) {
-                        values = (Map<String, Object>) values.get(fieldName);
 
-                        System.out.println(fieldName);
+                // Iterate over tables for every file
+                for (List<Object> entry : entries) {
+                    Table selectionTable = new Table();
+                    Table fileTable = (Table) entry.get(2);
+                    Table selection = (Table) fileTable.getColumn(from).getElements().get(0);
+
+                    for (KeysField keysField : keysFields) {
+                        Column<?> column = selection.getColumn(keysField.name);
+                        column.setHeader(keysField.rename);
+
+                        selectionTable.addColumn(column);
                     }
-                    
-                    for (KeysField keysField : keysFields)
-                        table.addColumn(keysField.rename, values.get(keysField.name));
+
+                    // Replace table
+                    dataContext.replaceTable((String) entry.get(1), selectionTable);
+
+                    // TODO: Nested sub-fields
                 }
-                
+
                 break;
-                
+
             case METADATA:
-                for (int i = 0; i < tables.size(); i++) {
-                    Table table = tables.get(i);
-                    FileData fileData = filesData.get(i);
-                    
-                    table.addColumn(rename, fileData.name());
+                for (List<?> entry : entries) {
+                    Table fileTable = (Table) entry.get(2);
+                    String filename = (String) entry.get(0);
+
+                    fileTable.addColumn(rename, List.of(filename));
                 }
-                
+
                 break;
         }
     }

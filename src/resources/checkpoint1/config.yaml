@@ -1,14 +1,10 @@
 source:
-  - file: decision_tree_1.yaml
-  - file: decision_tree_2.yaml
-  - file: decision_tree_3.yaml
+  - file: data/decision_tree_1.yaml
+  - file: data/decision_tree_2.yaml
+  - file: data/decision_tree_3.yaml
 commands:
   - !select
     select:
-      - !metadataSelection
-        metadata: filename
-        rename: File
-        
       - !fromSelection
         from: params
         keys:
@@ -21,6 +17,10 @@ commands:
           - name: min_samples_split
             rename: Min Samples Split
 
+      - !metadataSelection
+        metadata: filename
+        rename: File
+        
   - !merge
     merge:
       - sources:
@@ -30,5 +30,5 @@ commands:
         target: result
 
 target:
-  - file: output.csv
+  - file: output.html
     table: result

@@ -9,9 +9,9 @@ public class MergeInstruction implements Instruction {
     private final List<String> sources;
     private final String target;
 
-    private final DataSingleton data;
+    private final DataContext data;
 
-    public MergeInstruction(DataSingleton data, List<String> sources, String target) {
+    public MergeInstruction(DataContext data, List<String> sources, String target) {
         this.sources = sources;
         this.target = target;
         this.data = data;
@@ -19,17 +19,10 @@ public class MergeInstruction implements Instruction {
 
     @Override
     public void execute() {
-        List<String> headers = data.getTable(sources.get(0)).getHeaders();
-        Table output = new Table(target, headers.toArray(new String[0]));
+        List<Table> tables = sources.stream().map(data::getTable).toList();
 
-        for (String source : sources) {
-            Table table = data.getTable(source);
-            
-            for (int i = 0; i < table.numRows(); i++) {
-                output.addRow(table.getRow(i).toArray());
-            }
-        }
+        Table output = Table.concat(tables.toArray(Table[]::new));
 
-        data.addTable(output);
+        data.addTable(target, output);
     }
 }
