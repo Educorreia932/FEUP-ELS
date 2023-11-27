@@ -49,7 +49,7 @@ public class InternalTest {
             // Table 2
             load("resources/checkpoint2/data/decision_tree.yaml")
                 .select()
-                    .type(ValueType.TERMINAL)
+                    .type(ValueType.TABLE)
                     .fields("params")
                 .end(),
 
