@@ -1,0 +1,9 @@
+grammar org.xtext.example.tablefork.TableFork with org.eclipse.xtext.common.Terminals
+
+generate tableFork "http://www.xtext.org/example/tablefork/TableFork"
+
+Model:
+	greetings+=Greeting*;
+	
+Greeting:
+	'Hello' name=ID '!';
