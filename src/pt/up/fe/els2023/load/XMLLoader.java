@@ -21,7 +21,6 @@ import java.util.Map;
 public class XMLLoader implements Loader{
     @Override
     public Map<String, Object> load(File file) {
-        file = new File(FileUtils.getFilePathWithRootSource(file));
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
         try {
@@ -35,9 +34,12 @@ public class XMLLoader implements Loader{
 
             return xmlData;
 
-        } catch (Exception e) {
+        } 
+        
+        catch (Exception e) {
             e.printStackTrace();
         }
+        
         return null;
     }
 

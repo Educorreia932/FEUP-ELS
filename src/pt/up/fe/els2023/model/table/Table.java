@@ -1,6 +1,8 @@
 package pt.up.fe.els2023.model.table;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,6 +20,7 @@ import pt.up.fe.els2023.save.HTMLSaver;
 import pt.up.fe.els2023.save.LatexSaver;
 import pt.up.fe.els2023.save.Saver;
 import pt.up.fe.els2023.utils.FileUtils;
+import pt.up.fe.els2023.utils.GlobFileVisitor;
 
 import static pt.up.fe.els2023.utils.FileUtils.getFileType;
 
@@ -92,7 +95,7 @@ public class Table {
                 // Convert integer to double
                 if (value.getClass() == Integer.class)
                     value = Double.valueOf((Integer) value);
-                
+
                 ValueType type = ValueType.fromObject(value);
                 assert type != null;
                 table.addColumn(Column.withType(key, type, value));
@@ -102,10 +105,27 @@ public class Table {
         return table;
     }
 
-    public static Table load(String path) {
-        File file = new File(path);
+    public static Table load(String pattern) {
+        var fileVisitor = new GlobFileVisitor("test/resources/" + pattern);
 
-        return fromFile(file);
+        try {
+            Files.walkFileTree(Paths.get("test/resources/"), fileVisitor);
+        }
+
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+
+        List<Path> paths = fileVisitor.getMatchedFiles();
+        List<Table> tables = new ArrayList<>();
+
+        for (Path path : paths) {
+            Table table = fromFile(path.toFile());
+
+            tables.add(table);
+        }
+
+        return concat(tables);
     }
 
     public static Table fromFile(File file) {
@@ -118,7 +138,16 @@ public class Table {
             case HTML, TEX, CSV -> throw new RuntimeException("Filetype not supported");
         };
 
-        Map<String, Object> contents = loader.load(file);
+        Map<String, Object> contents;
+        
+        try {
+            contents = loader.load(file);
+        }
+        
+        catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        
         Table table = Table.fromContents(contents);
 
         // Metadata fields 
@@ -238,8 +267,8 @@ public class Table {
         return new Table(columns.toArray(Column[]::new));
     }
 
-    public static Table concat(Table... tables) {
-        var headers = tables[0].getHeadersAndTypes();
+    public static Table concat(List<Table> tables) {
+        var headers = tables.get(0).getHeadersAndTypes();
 
         Table concatenatedTable = Table.withHeaders(headers);
 
@@ -260,6 +289,10 @@ public class Table {
         }
 
         return concatenatedTable;
+    }
+
+    public static Table concat(Table... tables) {
+        return concat(Arrays.asList(tables));
     }
 
     public void save(String path) {

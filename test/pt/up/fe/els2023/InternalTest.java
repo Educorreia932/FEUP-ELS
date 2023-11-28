@@ -70,4 +70,41 @@ public class InternalTest {
         .rename(Metadata.FOLDER.toString(), "Folder")
         .save("Assignment 2.html");
     }
+
+    @Test
+    public void assignment3() {
+        merge(
+            load("checkpoint3/data/**/analysis.yaml")
+                .select()
+                    .from("total.results")
+                        .fields("dynamic")
+                    .end()  
+
+                    .fields(Metadata.FOLDER.toString())
+                .end()
+            
+                // TODO: Rename columns
+            
+                .rename(Metadata.FOLDER.toString(), "Folder"),
+            
+            load("checkpoint3/data/**/analysis.xml")
+                .select()
+                    .from("root.total.results")
+                        .fields("static")
+                    .end()
+                .end(),
+
+            // TODO: Rename columns
+            load("checkpoint3/data/**/profiling.json")
+                .select()
+                    .fields("functions")
+                .end()
+            
+                .slice(0, 3)
+            
+            // TODO: Select columns from sub-tables and rename them 
+        )
+        // TODO: Rows with sum and average values
+        .save("Assignment 3.csv");
+    }
 }
