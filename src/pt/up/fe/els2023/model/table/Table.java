@@ -301,9 +301,21 @@ public class Table {
         }
     }
 
-    public void addColumn(Column column) {
-        // TODO: Fill with null values on other columns or self
-        columns.put(column.getHeader(), column);
+    public void addColumn(Column newColumn) {
+        int sizeDifference = newColumn.numElements() - numRows();
+
+        // Fill new columns with nulls
+        if (sizeDifference < 0)
+            for (int i = newColumn.numElements(); i < numRows(); i++)
+                newColumn.addElement(null);
+
+        // Fill existing columns with nulls
+        else if (sizeDifference > 0) 
+            for (Column column : columns.values())
+                for (int i = numRows(); i < newColumn.numElements(); i++)
+                    column.addElement(null);
+        
+        columns.put(newColumn.getHeader(), newColumn);
     }
 
     public void removeRow(int index) {
@@ -315,6 +327,9 @@ public class Table {
     }
 
     public int numRows() {
+        if (numColumns() == 0)
+            return 0;
+        
         return getColumn(0).numElements();
     }
 

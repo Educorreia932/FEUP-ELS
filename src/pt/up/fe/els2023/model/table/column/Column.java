@@ -19,13 +19,6 @@ public class Column {
     private String header;
     private final ValueType type;
     private final List<Value> elements = new ArrayList<>();
-    private static final FunctionClassMap<Object, Value> convertToValue = new FunctionClassMap<>();
-
-    static {
-        convertToValue.put(Double.class, DoubleValue::new);
-        convertToValue.put(String.class, StringValue::new);
-        convertToValue.put(Table.class, TableValue::new);
-    }
 
     Column(String header, Object[] elements, ValueType type) {
         this.header = header;
@@ -65,10 +58,14 @@ public class Column {
     }
 
     public void addElement(Object element) {
-        if (ValueType.fromObject(element) != type)
+        if (element != null && ValueType.fromObject(element) != type)
             throw new RuntimeException("Trying to add element with incorrect type");
 
-        elements.add(convertToValue.apply(element));
+        elements.add(switch (type) {
+            case DOUBLE -> new DoubleValue((Double) element);
+            case STRING -> new StringValue((String) element);
+            case TABLE -> new TableValue((Table) element);
+        });
     }
 
     public void removeElement(int index) {
