@@ -18,9 +18,19 @@ public class FromSelection {
     }
 
     public FromSelection fields(String... fieldNames) {
-        Table fromTable = table.selectColumnsByName(fromField);
+        Table fromTable = table;
 
-        selections.add(fromTable.selectColumnsByName(fieldNames));
+        String[] parts = fromField.split("\\.");
+
+        for (String part : parts)
+            fromTable = fromTable.extract(part);
+
+        for (String fieldName : fieldNames) {
+            if (!fromTable.hasColumn(fieldName))
+                throw new IllegalArgumentException("Table does not have column " + fieldName);
+
+            selections.add(fromTable.extract(fieldName));
+        }
 
         return this;
     }

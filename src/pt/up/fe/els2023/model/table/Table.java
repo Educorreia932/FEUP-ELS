@@ -31,11 +31,6 @@ public class Table {
 
     }
 
-    public Table(Column... columns) {
-        for (Column column : columns)
-            this.columns.put(column.getHeader(), column);
-    }
-
     public static Table withHeaders(List<Pair<String, ValueType>> headers) {
         List<Column> columns = new ArrayList<>();
 
@@ -45,7 +40,7 @@ public class Table {
             columns.add(column);
         }
 
-        return new Table(columns.toArray(Column[]::new));
+        return fromColumns(columns);
     }
 
     @SuppressWarnings("unchecked")
@@ -105,6 +100,19 @@ public class Table {
         return table;
     }
 
+    public static Table fromColumns(Column... columns) {
+        return fromColumns(Arrays.asList(columns));
+    }
+
+    public static Table fromColumns(List<Column> columns) {
+        Table table = new Table();
+
+        for (Column column : columns)
+            table.addColumn(column);
+
+        return table;
+    }
+
     public static Table load(String pattern) {
         var fileVisitor = new GlobFileVisitor("test/resources/" + pattern);
 
@@ -139,15 +147,15 @@ public class Table {
         };
 
         Map<String, Object> contents;
-        
+
         try {
             contents = loader.load(file);
         }
-        
+
         catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-        
+
         Table table = Table.fromContents(contents);
 
         // Metadata fields 
@@ -167,49 +175,29 @@ public class Table {
         return table;
     }
 
-    public Selection select() {
-        return new Selection(this);
-    }
+    public Table extract(String fieldName) {
+        Column columnToExtract = getColumn(fieldName);
+        Table extracted;
 
-    public Table selectColumnsByName(String... fieldNames) {
-        var table = new Table();
+        // Composite value
+        if (columnToExtract.getType() == ValueType.TABLE) {
+            List<Table> subTables = new ArrayList<>();
 
-        for (String fieldName : fieldNames) {
-            Column selectedColumn = getColumn(fieldName);
+            for (var subTable : columnToExtract.getElements())
+                subTables.add((Table) subTable);
 
-            if (Arrays.asList(fieldNames).contains(fieldName)) {
-                // Composite value
-                if (selectedColumn.getElement(0) instanceof Table) {
-                    for (var subTable : selectedColumn.getElements()) {
-                        for (var subColumn : ((Table) subTable).getColumns()) {
-                            boolean hasColumn = table.getHeaders().contains(subColumn.getHeader());
-
-                            if (!hasColumn)
-                                table.addColumn(subColumn);
-
-                            else
-                                table.getColumn(subColumn.getHeader()).addElements(subColumn.getElements().toArray());
-                        }
-                    }
-                }
-
-                // Terminal value
-                else
-                    table.addColumn(selectedColumn);
-            }
+            extracted = Table.concat(subTables);
         }
 
-        return table;
+        // Terminal value
+        else
+            extracted = fromColumns(columnToExtract);
+
+        return extracted;
     }
 
-    public Table selectColumnsByType(ValueType valueType) {
-        Stream<Column> columns = getColumns().stream()
-            .filter(column -> column.getType() != valueType);
-
-        List<String> metadataFields = Arrays.stream(Metadata.values()).map(Objects::toString).toList();
-        columns = columns.filter(column -> !metadataFields.contains(column.getHeader()));
-
-        return new Table(columns.toArray(Column[]::new));
+    public Selection select() {
+        return new Selection(this);
     }
 
     public Table rename(String field, String newName) {
@@ -222,7 +210,8 @@ public class Table {
         return this;
     }
 
-    public Table unflatten() {
+    // https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.unstack.html
+    public Table unstack() {
         List<Table> tables = new ArrayList<>();
 
         for (Column column : getColumns()) {
@@ -232,6 +221,22 @@ public class Table {
         }
 
         return concat(tables.toArray(Table[]::new));
+    }
+
+    // Remove sub-nested tables
+    public Table unravel() {
+        Table result = new Table();
+
+        for (Column column : getColumns()) {
+            if (column.getType() == ValueType.TABLE) {
+                // for (Column subColumn : unravel(column))
+            }
+
+            else
+                result.addColumn(column);
+        }
+
+        return result;
     }
 
     public Table min(String field) {
@@ -264,7 +269,7 @@ public class Table {
         for (Table table : tables)
             columns.addAll(table.getColumns());
 
-        return new Table(columns.toArray(Column[]::new));
+        return fromColumns(columns);
     }
 
     public static Table concat(List<Table> tables) {
@@ -296,8 +301,11 @@ public class Table {
     }
 
     public void save(String path) {
-        List<String> headers = getHeaders();
-        List<List<Object>> rows = getRows();
+        // Table table = unravel();
+        Table table = this;
+
+        List<String> headers = table.getHeaders();
+        List<List<Object>> rows = table.getRows();
 
         String[] headerLines = headers.toArray(String[]::new);
         List<String[]> rowLines = new ArrayList<>();
@@ -341,20 +349,6 @@ public class Table {
     }
 
     public Column getColumn(String header) {
-        if (header.contains(".")) {
-            String[] parts = header.split("\\.");
-            ListOrderedMap<String, Column> auxColumns = columns;
-
-            for (int i = 0; i < parts.length - 1; i++) {
-                Column currentColumn = auxColumns.get(parts[i]);
-
-                for (Object object : currentColumn.getElements())
-                    if (object instanceof Table)
-                        auxColumns = ((Table) object).columns;
-            }
-
-            return auxColumns.get(parts[parts.length - 1]);
-        }
 
         Column column = columns.get(header);
 
@@ -380,6 +374,7 @@ public class Table {
     }
 
     public void addColumn(Column column) {
+        // TODO: Fill with null values on other columns or self
         columns.put(column.getHeader(), column);
     }
 
@@ -417,6 +412,10 @@ public class Table {
 
     public List<Column> getColumns() {
         return columns.valueList();
+    }
+
+    public boolean hasColumn(String fieldName) {
+        return columns.containsKey(fieldName);
     }
 
     @Override

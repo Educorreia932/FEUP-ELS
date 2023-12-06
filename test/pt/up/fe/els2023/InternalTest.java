@@ -40,10 +40,10 @@ public class InternalTest {
             // Table 1
             load("checkpoint2/data/vitis-report.xml")
                 .select()
-                    .fields(
-                        Metadata.FOLDER.toString(),
-                        "profile.AreaEstimates.Resources"
-                    )
+                    .fields(Metadata.FOLDER.toString())
+                    .from("profile.AreaEstimates")
+                        .fields("Resources")
+                    .end()
                 .end(),
 
             // Table 2
