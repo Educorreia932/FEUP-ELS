@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javafx.util.Pair;
 import org.apache.commons.collections4.map.ListOrderedMap;
+import pt.up.fe.els2023.internal.TableInteraction;
 import pt.up.fe.els2023.load.JSONLoader;
 import pt.up.fe.els2023.load.Loader;
 import pt.up.fe.els2023.load.XMLLoader;
@@ -180,10 +181,10 @@ public class Table {
 
         for (int i = 0; i < numRows(); i++) {
             List<Table> tables = new ArrayList<>();
-            
-            for (Column column : getColumns()) {    
+
+            for (Column column : getColumns()) {
                 Table subTable = (Table) column.getElements().get(i);
-                
+
                 tables.add(subTable);
             }
 
@@ -201,10 +202,17 @@ public class Table {
         Table result = new Table();
 
         for (Column column : getColumns()) {
+            // Composite value
             if (column.getType() == ValueType.TABLE) {
-                // for (Column subColumn : unravel(column))
+                Table extracted = extract(column.getHeader());
+                
+                for (Column subColumn : extracted.getColumns())
+                    subColumn.setHeader(column.getHeader() + "." + subColumn.getHeader());
+
+                result = result.merge(extracted.unravel());
             }
 
+            // Terminal value
             else
                 result.addColumn(column);
         }
@@ -236,6 +244,15 @@ public class Table {
         return slice(index, index + 1);
     }
 
+    public Table merge(Table other) {
+        ArrayList<Column> columns = new ArrayList<>();
+            
+        columns.addAll(getColumns());
+        columns.addAll(other.getColumns());
+
+        return fromColumns(columns);
+    }
+
     public static Table merge(List<Table> tables) {
         List<Column> columns = new ArrayList<>();
 
@@ -245,28 +262,26 @@ public class Table {
         return fromColumns(columns);
     }
 
-    public static Table concat(List<Table> tables) {
-        var headers = tables.get(0).getHeadersAndTypes();
+    public Table concat(Table other) {
+        Table result = new Table();
 
-        Table concatenatedTable = Table.withHeaders(headers);
+        for (Column column : getColumns()) {
+            List<Object> otherElements = other.getColumn(column.getHeader()).getElements();
 
-        for (Table table : tables) {
-            List<Object> row = new ArrayList<>();
-
-            for (Pair<String, ValueType> header : headers) {
-                Column column = table.getColumn(header.getKey());
-
-                if (column == null)
-                    row.add(null);
-
-                else
-                    row.add(column.getElements().get(0));
-            }
-
-            concatenatedTable.addRow(row);
+            column.addElements(otherElements.toArray());
+            result.addColumn(column);
         }
 
-        return concatenatedTable;
+        return result;
+    }
+
+    public static Table concat(List<Table> tables) {
+        Table concatenated = tables.get(0);
+
+        for (Table table : tables.subList(1, tables.size()))
+            concatenated = concatenated.concat(table);
+
+        return concatenated;
     }
 
     public ArrayList<Object> getRow(int index) {
@@ -317,12 +332,12 @@ public class Table {
             for (int i = newColumn.numElements(); i < numRows(); i++)
                 newColumn.addElement(null);
 
-        // Fill existing columns with nulls
-        else if (sizeDifference > 0) 
+            // Fill existing columns with nulls
+        else if (sizeDifference > 0)
             for (Column column : columns.values())
                 for (int i = numRows(); i < newColumn.numElements(); i++)
                     column.addElement(null);
-        
+
         columns.put(newColumn.getHeader(), newColumn);
     }
 
@@ -337,7 +352,7 @@ public class Table {
     public int numRows() {
         if (numColumns() == 0)
             return 0;
-        
+
         return getColumn(0).numElements();
     }
 

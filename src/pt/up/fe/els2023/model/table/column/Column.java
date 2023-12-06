@@ -68,6 +68,10 @@ public class Column {
         });
     }
 
+    public void setElement(int i, Table table) {
+        elements.set(i, new TableValue(table));
+    }
+
     public void removeElement(int index) {
         elements.remove(index);
     }
@@ -87,7 +91,7 @@ public class Column {
     public void setHeader(String header) {
         this.header = header;
     }
-
+    
     public int numElements() {
         return elements.size();
     }

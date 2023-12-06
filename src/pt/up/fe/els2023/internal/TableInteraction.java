@@ -1,6 +1,7 @@
 package pt.up.fe.els2023.internal;
 
 import pt.up.fe.els2023.model.table.Table;
+import pt.up.fe.els2023.model.table.column.Column;
 import pt.up.fe.els2023.save.CSVSaver;
 import pt.up.fe.els2023.save.HTMLSaver;
 import pt.up.fe.els2023.save.LatexSaver;
@@ -15,6 +16,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class TableInteraction {
     private Table table;
@@ -39,15 +42,15 @@ public class TableInteraction {
         }
 
         List<Path> paths = fileVisitor.getMatchedFiles();
-        List<Table> tables = new ArrayList<>();
+        List<TableInteraction> tables = new ArrayList<>();
 
         for (Path path : paths) {
             Table table = Table.fromFile(path.toFile());
 
-            tables.add(table);
+            tables.add(fromTable(table));
         }
 
-        return new TableInteraction(Table.concat(tables));
+        return new TableInteraction(concat(tables.toArray(TableInteraction[]::new)).getTable());
     }
 
     public static TableInteraction merge(TableInteraction... interactions) {
@@ -59,7 +62,7 @@ public class TableInteraction {
     public static TableInteraction concat(TableInteraction... interactions) {
         List<Table> tables = Arrays.stream(interactions).map(TableInteraction::getTable).toList();
 
-        return new TableInteraction(Table.concat(tables));
+        return fromTable(Table.concat(tables));
     }
 
     public Selection select() {
@@ -83,9 +86,10 @@ public class TableInteraction {
 
         return this;
     }
-    
+
     public void save(String path) {
-        // Table table = unravel();
+        table = table.unravel();
+        
         List<String> headers = table.getHeaders();
         List<List<Object>> rows = table.getRows();
 
@@ -119,6 +123,25 @@ public class TableInteraction {
     public TableInteraction slice(int i, int j) {
         table = table.slice(i, j);
 
+        return this;
+    }
+
+    public TableInteraction forEach(Function<TableInteraction, TableInteraction> action) {
+        // Array table
+        for (Column column : table.getColumns()) {
+            Table subTable = (Table) column.getElement(0);
+            TableInteraction interaction = fromTable(subTable);
+            Table result = action.apply(interaction).getTable();
+
+            column.setElement(0, result);
+        }
+        
+        return this;
+    }
+
+    public TableInteraction unravel() {
+        table = table.unravel();
+        
         return this;
     }
 
