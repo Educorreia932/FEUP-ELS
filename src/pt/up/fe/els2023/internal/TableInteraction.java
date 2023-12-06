@@ -94,6 +94,7 @@ public class TableInteraction {
 
         for (List<?> row : rows) {
             String[] stringList = row.stream()
+                .map(s -> s == null ? "" : s)
                 .map(Object::toString)
                 .toArray(String[]::new);
 
