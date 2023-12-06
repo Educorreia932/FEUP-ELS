@@ -175,17 +175,25 @@ public class Table {
         return this;
     }
 
-    // https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.unstack.html
     public Table unstack() {
-        List<Table> tables = new ArrayList<>();
+        Table result = new Table();
 
-        for (Column column : getColumns()) {
-            Table subTable = (Table) column.getElements().get(0);
+        for (int i = 0; i < numRows(); i++) {
+            List<Table> tables = new ArrayList<>();
+            
+            for (Column column : getColumns()) {    
+                Table subTable = (Table) column.getElements().get(i);
+                
+                tables.add(subTable);
+            }
 
-            tables.add(subTable);
+            result.addColumn(Column.ofTables(String.valueOf(i), concat(tables)));
         }
 
-        return concat(tables);
+        if (result.numColumns() == 1)
+            result = (Table) result.getColumn(0).getElements().get(0);
+
+        return result;
     }
 
     // Remove sub-nested tables
