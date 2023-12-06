@@ -10,11 +10,13 @@ import java.util.List;
 import static pt.up.fe.els2023.model.table.Table.merge;
 
 public class Selection {
+    final TableInteraction interaction;
     final Table table;
     final List<Table> selections;
 
-    public Selection(Table table) {
-        this.table = table;
+    public Selection(TableInteraction interaction) {
+        this.interaction = interaction;
+        this.table = interaction.getTable();
         this.selections = new ArrayList<>();
     }
 
@@ -41,7 +43,7 @@ public class Selection {
         return this;
     }
 
-    public Table end() {
-        return merge(selections.toArray(Table[]::new));
+    public TableInteraction end() {
+        return TableInteraction.fromTable(Table.merge(selections));
     }
 }

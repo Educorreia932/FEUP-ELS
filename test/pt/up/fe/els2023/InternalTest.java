@@ -59,7 +59,7 @@ public class InternalTest {
                     .fields("functions")
                 .end()
             
-                .unflatten()
+                .unstack()
 
                 .select()
                     .fields("name", "time%")

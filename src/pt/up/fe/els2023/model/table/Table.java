@@ -2,25 +2,17 @@ package pt.up.fe.els2023.model.table;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javafx.util.Pair;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import pt.up.fe.els2023.internal.Selection;
 import pt.up.fe.els2023.load.JSONLoader;
 import pt.up.fe.els2023.load.Loader;
 import pt.up.fe.els2023.load.XMLLoader;
 import pt.up.fe.els2023.load.YamlLoader;
 import pt.up.fe.els2023.model.table.column.Column;
-import pt.up.fe.els2023.save.CSVSaver;
-import pt.up.fe.els2023.save.HTMLSaver;
-import pt.up.fe.els2023.save.LatexSaver;
-import pt.up.fe.els2023.save.Saver;
 import pt.up.fe.els2023.utils.FileUtils;
-import pt.up.fe.els2023.utils.GlobFileVisitor;
 
 import static pt.up.fe.els2023.utils.FileUtils.getFileType;
 
@@ -113,29 +105,6 @@ public class Table {
         return table;
     }
 
-    public static Table load(String pattern) {
-        var fileVisitor = new GlobFileVisitor("test/resources/" + pattern);
-
-        try {
-            Files.walkFileTree(Paths.get("test/resources/"), fileVisitor);
-        }
-
-        catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-
-        List<Path> paths = fileVisitor.getMatchedFiles();
-        List<Table> tables = new ArrayList<>();
-
-        for (Path path : paths) {
-            Table table = fromFile(path.toFile());
-
-            tables.add(table);
-        }
-
-        return concat(tables);
-    }
-
     public static Table fromFile(File file) {
         FileUtils.FileTypes fileType = getFileType(file);
 
@@ -196,10 +165,6 @@ public class Table {
         return extracted;
     }
 
-    public Selection select() {
-        return new Selection(this);
-    }
-
     public Table rename(String field, String newName) {
         int index = columns.indexOf(field);
         Column column = columns.remove(field);
@@ -220,7 +185,7 @@ public class Table {
             tables.add(subTable);
         }
 
-        return concat(tables.toArray(Table[]::new));
+        return concat(tables);
     }
 
     // Remove sub-nested tables
@@ -263,7 +228,7 @@ public class Table {
         return slice(index, index + 1);
     }
 
-    public static Table merge(Table... tables) {
+    public static Table merge(List<Table> tables) {
         List<Column> columns = new ArrayList<>();
 
         for (Table table : tables)
@@ -294,43 +259,6 @@ public class Table {
         }
 
         return concatenatedTable;
-    }
-
-    public static Table concat(Table... tables) {
-        return concat(Arrays.asList(tables));
-    }
-
-    public void save(String path) {
-        // Table table = unravel();
-        Table table = this;
-
-        List<String> headers = table.getHeaders();
-        List<List<Object>> rows = table.getRows();
-
-        String[] headerLines = headers.toArray(String[]::new);
-        List<String[]> rowLines = new ArrayList<>();
-
-        for (List<?> row : rows) {
-            String[] stringList = row.stream()
-                .map(Object::toString)
-                .toArray(String[]::new);
-
-            rowLines.add(stringList);
-        }
-
-        FileUtils.createDirectory("target");
-
-        File saveFile = new File("target/" + path);
-        FileUtils.FileTypes fileType = FileUtils.getFileType(new File(path));
-
-        Saver saver = switch (fileType) {
-            case CSV -> new CSVSaver();
-            case HTML -> new HTMLSaver();
-            case TEX -> new LatexSaver();
-            case YAML, JSON, XML -> throw new RuntimeException("Filetype not supported");
-        };
-
-        saver.save(saveFile, headerLines, rowLines);
     }
 
     public ArrayList<Object> getRow(int index) {
