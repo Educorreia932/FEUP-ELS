@@ -73,38 +73,52 @@ public class InternalTest {
 
     @Test
     public void assignment3() {
-        merge(
-            load("checkpoint3/data/**/analysis.yaml")
-                .select()
-                    .from("total.results")
-                        .fields("dynamic")
-                    .end()  
-
-                    .fields(Metadata.FOLDER.toString())
+        TableInteraction analysisYAML = load("checkpoint3/data/**/analysis.yaml")
+            .select()
+                .from("total.results")
+                    .fields("dynamic")
                 .end()
-            
-                // TODO: Rename columns
-            
-                .rename(Metadata.FOLDER.toString(), "Folder"),
-            
-            load("checkpoint3/data/**/analysis.xml")
-                .select()
-                    .from("root.total.results")
-                        .fields("static")
-                    .end()
-                .end(),
+
+                .fields(Metadata.FOLDER.toString())
+            .end()
 
             // TODO: Rename columns
-            load("checkpoint3/data/**/profiling.json")
-                .select()
-                    .fields("functions")
+
+            .rename(Metadata.FOLDER.toString(), "Folder");
+
+        TableInteraction analysisXML = load("checkpoint3/data/**/analysis.xml")
+            .select()
+                .from("root.total.results")
+                    .fields("static")
                 .end()
+            .end();
+        
+        TableInteraction profilingJSON = load("checkpoint3/data/**/profiling.json")
+            .select()
+                .fields("functions")
+            .end()
+
+            .unstack()
+
+            .forEach(x ->
+                x
+                    .slice(0, 3)
+                    .select()
+                        .fields("name", "time%")
+                    .end()
+                    .stack()
+            )
             
-                .slice(0, 3)
-            
-            // TODO: Select columns from sub-tables and rename them 
+            .unstack();
+
+        // TODO: Select columns from sub-tables and rename them 
+
+        merge(
+            // analysisYAML,
+            // analysisXML,
+            profilingJSON
         )
-        // TODO: Rows with sum and average values
-        .save("Assignment 3.csv");
+            // TODO: Rows with sum and average values
+            .save("Assignment 3.csv");
     }
 }

@@ -81,6 +81,12 @@ public class TableInteraction {
         return this;
     }
 
+    public TableInteraction stack() {
+        table = table.stack();
+
+        return this;    
+    }
+
     public TableInteraction max(String fieldName) {
         table = table.max(fieldName);
 

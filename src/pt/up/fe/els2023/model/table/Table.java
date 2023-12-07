@@ -135,6 +135,20 @@ public class Table {
         return table;
     }
 
+    public static Table array(List<Object> elements) {
+        Table table = new Table();
+
+        for (int i = 0; i < elements.size(); i++) {
+            Column column = Column.ofStrings(String.valueOf(i));
+            Column newColumn = Column.withType(String.valueOf(i), ValueType.fromObject(elements.get(i)), elements.get(i));
+            
+            newColumn.addElement(elements.get(i));
+            table.addColumn(newColumn);
+        }
+
+        return table;
+    }
+
     public Table slice(int fromIndex, int toIndex) {
         Table table = Table.withHeaders(getHeadersAndTypes());
         var rows = getRows().subList(fromIndex, toIndex);
@@ -197,6 +211,18 @@ public class Table {
         return result;
     }
 
+    public Table stack() {
+        Table result = new Table();
+        
+        for (Column column : getColumns()) {
+            Table arrayTable = Table.array(column.getElements());
+
+            result.addColumn(Column.ofTables(column.getHeader(), arrayTable));
+        }
+
+        return result;
+    }
+
     // Remove sub-nested tables
     public Table unravel() {
         Table result = new Table();
@@ -205,7 +231,7 @@ public class Table {
             // Composite value
             if (column.getType() == ValueType.TABLE) {
                 Table extracted = extract(column.getHeader());
-                
+
                 for (Column subColumn : extracted.getColumns())
                     subColumn.setHeader(column.getHeader() + "." + subColumn.getHeader());
 
@@ -246,7 +272,7 @@ public class Table {
 
     public Table merge(Table other) {
         ArrayList<Column> columns = new ArrayList<>();
-            
+
         columns.addAll(getColumns());
         columns.addAll(other.getColumns());
 
