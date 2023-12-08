@@ -69,7 +69,7 @@ public class TableInteraction {
     }
 
     public TableInteraction rename(String field, String newName) {
-        table = table.rename(field, newName); 
+        table = table.rename(field, newName);
 
         return this;
     }
@@ -83,7 +83,7 @@ public class TableInteraction {
     public TableInteraction stack() {
         table = table.stack();
 
-        return this;    
+        return this;
     }
 
     public TableInteraction max(String fieldName) {
@@ -94,7 +94,7 @@ public class TableInteraction {
 
     public void save(String path) {
         table = table.unravel();
-        
+
         List<String> headers = table.getHeaders();
         List<List<Object>> rows = table.getRows();
 
@@ -140,13 +140,13 @@ public class TableInteraction {
 
             column.setElement(0, result);
         }
-        
+
         return this;
     }
 
     public TableInteraction unravel() {
         table = table.unravel();
-        
+
         return this;
     }
 
@@ -154,24 +154,38 @@ public class TableInteraction {
         return table;
     }
 
-    public TableInteraction sum() {
+    private List<Object> sum() {
         List<Object> row = new ArrayList<>();
-        
-        for (Column column : table.getColumns()) 
+
+        for (Column column : table.getColumns())
             row.add(column.sum());
-        
-        table.addRow(row);
-        
-        return this;
+
+        return row;
     }
 
-    public TableInteraction average() {
+    private List<Object> average() {
         List<Object> row = new ArrayList<>();
 
         for (Column column : table.getColumns())
             row.add(column.average());
 
-        table.addRow(row);
+        return row;
+    }
+
+    public TableInteraction aggregate(Aggregation... aggregations) {
+        List<List<Object>> rows = new ArrayList<>();
+
+        for (Aggregation aggregation : aggregations) {
+            rows.add(
+                switch (aggregation) {
+                    case SUM -> sum();
+                    case AVERAGE -> average();
+                }
+            );
+        }
+        
+        for (List<Object> row : rows)
+            table.addRow(row);
 
         return this;
     }

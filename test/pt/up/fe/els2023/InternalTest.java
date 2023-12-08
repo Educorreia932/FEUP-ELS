@@ -1,6 +1,7 @@
 package pt.up.fe.els2023;
 
 import org.junit.Test;
+import pt.up.fe.els2023.internal.Aggregation;
 import pt.up.fe.els2023.model.table.Metadata;
 import pt.up.fe.els2023.model.table.ValueType;
 
@@ -118,8 +119,7 @@ public class InternalTest {
                 .rename("time%", "%")
         )
             .unravel()
-            .sum()
-            .average()
+            .aggregate(Aggregation.SUM, Aggregation.AVERAGE)
             .save("Assignment 3.csv");
     }
 }
