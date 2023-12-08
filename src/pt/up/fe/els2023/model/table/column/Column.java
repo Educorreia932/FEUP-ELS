@@ -4,13 +4,10 @@ import javafx.util.Pair;
 import pt.up.fe.els2023.model.table.Table;
 import pt.up.fe.els2023.model.table.ValueType;
 import pt.up.fe.els2023.model.table.values.DoubleValue;
-import pt.up.fe.els2023.model.table.values.IntegerValue;
 import pt.up.fe.els2023.model.table.values.StringValue;
 import pt.up.fe.els2023.model.table.values.TableValue;
 import pt.up.fe.els2023.model.table.values.Value;
-import pt.up.fe.specs.util.classmap.FunctionClassMap;
 
-import javax.swing.table.TableColumn;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,13 +16,6 @@ public class Column {
     private String header;
     private final ValueType type;
     private final List<Value> elements = new ArrayList<>();
-    private static final FunctionClassMap<Object, Value> convertToValue = new FunctionClassMap<>();
-
-    static {
-        convertToValue.put(Double.class, DoubleValue::new);
-        convertToValue.put(String.class, StringValue::new);
-        convertToValue.put(Table.class, TableValue::new);
-    }
 
     Column(String header, Object[] elements, ValueType type) {
         this.header = header;
@@ -65,10 +55,18 @@ public class Column {
     }
 
     public void addElement(Object element) {
-        if (ValueType.fromObject(element) != type)
+        if (element != null && ValueType.fromObject(element) != type)
             throw new RuntimeException("Trying to add element with incorrect type");
 
-        elements.add(convertToValue.apply(element));
+        elements.add(switch (type) {
+            case DOUBLE -> new DoubleValue((Double) element);
+            case STRING -> new StringValue((String) element);
+            case TABLE -> new TableValue((Table) element);
+        });
+    }
+
+    public void setElement(int i, Table table) {
+        elements.set(i, new TableValue(table));
     }
 
     public void removeElement(int index) {
@@ -97,5 +95,26 @@ public class Column {
 
     public ValueType getType() {
         return type;
+    }
+
+    public Double sum() {
+        if (type != ValueType.DOUBLE)
+            return null;
+
+        return elements.stream()
+            .map(Value::value)
+            .mapToDouble(Double.class::cast)
+            .sum();
+    }
+
+    public Double average() {
+        if (type != ValueType.DOUBLE)
+            return null;
+
+        return elements.stream()
+            .map(Value::value)
+            .mapToDouble(Double.class::cast)
+            .average()
+            .orElse(Double.NaN);
     }
 }
