@@ -37,7 +37,7 @@ public class Selection {
 
     public Selection type(ValueType valueType) {
         for (Column column : table.getColumns())
-            if (column.getType() == valueType)
+            if (column.getType() != valueType)
                 selections.add(table.extract(column.getHeader()));
 
         return this;

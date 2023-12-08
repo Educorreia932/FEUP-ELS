@@ -77,6 +77,9 @@ public class Table {
 
             // Terminal value
             else {
+                if (value == null)
+                    value = "null";
+
                 // Convert integer to double
                 if (value.getClass() == Integer.class)
                     value = Double.valueOf((Integer) value);

@@ -1,22 +1,16 @@
 package pt.up.fe.els2023;
 
 import org.junit.Test;
-import pt.up.fe.els2023.internal.TableInteraction;
 import pt.up.fe.els2023.model.table.Metadata;
 import pt.up.fe.els2023.model.table.ValueType;
 
 import static pt.up.fe.els2023.internal.TableInteraction.*;
 
-
 public class InternalTest {
     @Test 
     public void assignment1() {
-        concat(
-            // Import tables
-            load("checkpoint1/data/decision_tree_1.yaml"),
-            load("checkpoint1/data/decision_tree_2.yaml"),
-            load("checkpoint1/data/decision_tree_3.yaml")
-        ) // Join tables
+        // Load data
+        load("checkpoint1/data/*.yaml")
 
         // Apply transformations
         .select()
@@ -76,7 +70,7 @@ public class InternalTest {
     @Test
     public void assignment3() {
         merge(
-            // analysis.yaml
+            // Table 1
             load("checkpoint3/data/**/analysis.yaml")
                 .select()
                     .fields(Metadata.FOLDER.toString())
@@ -90,7 +84,7 @@ public class InternalTest {
                 .rename("iterations", "Iterations (Dynamic)")
                 .rename("calls", "Calls (Dynamic)"),
 
-            // analysis.xml
+            // Table 2
             load("checkpoint3/data/**/analysis.xml")
                 .select()
                     .from("root.total.results")
@@ -101,7 +95,7 @@ public class InternalTest {
                 .rename("nodes", "Nodes (Static)")
                 .rename("functions", "Functions (Static)"),
 
-            // profiling.json
+            // Table 3
             load("checkpoint3/data/**/profiling.json")
                 .select()
                     .fields("functions")
