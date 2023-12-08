@@ -1,10 +1,12 @@
 package pt.up.fe.els2023;
 
 import org.junit.Test;
+import pt.up.fe.els2023.internal.TableInteraction;
 import pt.up.fe.els2023.model.table.Metadata;
 import pt.up.fe.els2023.model.table.ValueType;
 
-import static pt.up.fe.els2023.model.table.Table.*;
+import static pt.up.fe.els2023.internal.TableInteraction.*;
+
 
 public class InternalTest {
     @Test 
@@ -15,7 +17,7 @@ public class InternalTest {
             load("checkpoint1/data/decision_tree_2.yaml"),
             load("checkpoint1/data/decision_tree_3.yaml")
         ) // Join tables
-            
+
         // Apply transformations
         .select()
             .fields(Metadata.FILENAME.toString())
@@ -23,17 +25,17 @@ public class InternalTest {
                 .fields("criterion", "splitter", "ccp_alpha", "min_samples_split")
             .end()
         .end()
-            
+
         .rename(Metadata.FILENAME.toString(), "File")
         .rename("criterion", "Criterion")
         .rename("splitter", "Splitter")
         .rename("ccp_alpha", "CCP Alpha")
         .rename("min_samples_split", "Min Samples Split")
-            
+
         // Export result
         .save("Assignment 1.csv");
     }
-    
+
     @Test
     public void assignment2() {
         merge(
@@ -58,63 +60,68 @@ public class InternalTest {
                 .select()
                     .fields("functions")
                 .end()
-            
+
                 .unstack()
 
                 .select()
                     .fields("name", "time%")
                 .end()
-            
+
                 .max("time%")
         )
-        .rename(Metadata.FOLDER.toString(), "Folder")
-        .save("Assignment 2.html");
+            .rename(Metadata.FOLDER.toString(), "Folder")
+            .save("Assignment 2.csv");
     }
 
     @Test
     public void assignment3() {
-        TableInteraction analysisYAML = load("checkpoint3/data/**/analysis.yaml")
-            .select()
-                .from("total.results")
-                    .fields("dynamic")
-                .end()
-
-                .fields(Metadata.FOLDER.toString())
-            .end()
-
-            // TODO: Rename columns
-
-            .rename(Metadata.FOLDER.toString(), "Folder");
-
-        TableInteraction analysisXML = load("checkpoint3/data/**/analysis.xml")
-            .select()
-                .from("root.total.results")
-                    .fields("static")
-                .end()
-            .end();
-        
-        TableInteraction profilingJSON = load("checkpoint3/data/**/profiling.json")
-            .select()
-                .fields("functions")
-            .end()
-
-            .unstack()
-
-            .forEach(x ->
-                x
-                    .slice(0, 3)
-                    .select()
-                        .fields("name", "time%")
-                    .end()
-                    .stack()
-            )
-            
-            .unstack();
-
         merge(
-            // analysisYAML,
-            // analysisXML,
-            profilingJSON
+            // analysis.yaml
+            load("checkpoint3/data/**/analysis.yaml")
+                .select()
+                    .fields(Metadata.FOLDER.toString())
+
+                    .from("total.results")
+                        .fields("dynamic")
+                    .end()
+                .end()
+
+                .rename(Metadata.FOLDER.toString(), "Folder")
+                .rename("iterations", "Iterations (Dynamic)")
+                .rename("calls", "Calls (Dynamic)"),
+
+            // analysis.xml
+            load("checkpoint3/data/**/analysis.xml")
+                .select()
+                    .from("root.total.results")
+                        .fields("static")
+                    .end()
+                .end()
+
+                .rename("nodes", "Nodes (Static)")
+                .rename("functions", "Functions (Static)"),
+
+            // profiling.json
+            load("checkpoint3/data/**/profiling.json")
+                .select()
+                    .fields("functions")
+                .end()
+
+                .unstack()
+
+                .forEach(x ->
+                    x
+                        .slice(0, 3)
+                        .select()
+                            .fields("name", "time%")
+                        .end()
+                        .stack()
+                )
+
+                .unstack()
+
+                .rename("name", "Name")
+                .rename("time%", "%")
         )
             .unravel()
             .sum()

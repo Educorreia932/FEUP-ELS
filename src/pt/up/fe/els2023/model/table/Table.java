@@ -75,11 +75,8 @@ public class Table {
             else if (value instanceof Map<?, ?>)
                 table.addColumn(Column.ofTables(key, fromContents((Map<String, Object>) value)));
 
-                // Terminal value
+            // Terminal value
             else {
-                if (value == null)
-                    value = "null";
-
                 // Convert integer to double
                 if (value.getClass() == Integer.class)
                     value = Double.valueOf((Integer) value);
@@ -232,7 +229,7 @@ public class Table {
                 Table extracted = extract(column.getHeader());
 
                 for (Column subColumn : extracted.getColumns())
-                    subColumn.setHeader(column.getHeader() + "." + subColumn.getHeader());
+                    subColumn.setHeader(column.getHeader() + " #" + subColumn.getHeader());
 
                 result = result.merge(extracted.unravel());
             }
