@@ -4,13 +4,10 @@ import javafx.util.Pair;
 import pt.up.fe.els2023.model.table.Table;
 import pt.up.fe.els2023.model.table.ValueType;
 import pt.up.fe.els2023.model.table.values.DoubleValue;
-import pt.up.fe.els2023.model.table.values.IntegerValue;
 import pt.up.fe.els2023.model.table.values.StringValue;
 import pt.up.fe.els2023.model.table.values.TableValue;
 import pt.up.fe.els2023.model.table.values.Value;
-import pt.up.fe.specs.util.classmap.FunctionClassMap;
 
-import javax.swing.table.TableColumn;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -91,12 +88,33 @@ public class Column {
     public void setHeader(String header) {
         this.header = header;
     }
-    
+
     public int numElements() {
         return elements.size();
     }
 
     public ValueType getType() {
         return type;
+    }
+
+    public Double sum() {
+        if (type != ValueType.DOUBLE)
+            return null;
+
+        return elements.stream()
+            .map(Value::value)
+            .mapToDouble(Double.class::cast)
+            .sum();
+    }
+
+    public Double average() {
+        if (type != ValueType.DOUBLE)
+            return null;
+
+        return elements.stream()
+            .map(Value::value)
+            .mapToDouble(Double.class::cast)
+            .average()
+            .orElse(Double.NaN);
     }
 }

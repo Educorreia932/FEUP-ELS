@@ -111,14 +111,14 @@ public class InternalTest {
             
             .unstack();
 
-        // TODO: Select columns from sub-tables and rename them 
-
         merge(
             // analysisYAML,
             // analysisXML,
             profilingJSON
         )
-            // TODO: Rows with sum and average values
+            .unravel()
+            .sum()
+            .average()
             .save("Assignment 3.csv");
     }
 }
