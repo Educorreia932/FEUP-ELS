@@ -142,7 +142,6 @@ public class Table {
             Column column = Column.ofStrings(String.valueOf(i));
             Column newColumn = Column.withType(String.valueOf(i), ValueType.fromObject(elements.get(i)), elements.get(i));
             
-            newColumn.addElement(elements.get(i));
             table.addColumn(newColumn);
         }
 
