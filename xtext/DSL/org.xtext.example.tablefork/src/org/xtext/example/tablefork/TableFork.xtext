@@ -2,8 +2,23 @@ grammar org.xtext.example.tablefork.TableFork with org.eclipse.xtext.common.Term
 
 generate tableFork "http://www.xtext.org/example/tablefork/TableFork"
 
+
+TableFork:
+	
+	contains+=Contains*;
+
+Contains:
+	
+	 LoadFork*;
+	 
+LoadFork:
+	
+	;
+
+/* 
 Model:
 	greetings+=Greeting*;
 	
 Greeting:
 	'Hello' name=ID '!';
+*/
