@@ -4,21 +4,32 @@ generate tableFork "http://www.xtext.org/example/tablefork/TableFork"
 
 
 TableFork:
-	
-	contains+=Contains*;
-
-Contains:
-	
-	 LoadFork*;
+	load=Load operations+=Operation*; 
 	 
-LoadFork:
-	
-	;
+Load:
+	"+" "load" path=ID 
+;
 
-/* 
-Model:
-	greetings+=Greeting*;
-	
-Greeting:
-	'Hello' name=ID '!';
-*/
+Operation:
+	 Select | Rename | Save
+;
+
+Select:
+	{Select} "+" "select" fields+=Fields* from+=From* "*" "select"
+;
+
+Fields:
+	{Fields} "+" "fields" fieldNames+=ID*
+;
+
+From:
+	"+" "from" fromField=ID fields=Fields "*" "from"
+;
+
+Rename:
+	"+" "rename" fieldName=ID newName=ID
+;
+
+Save:
+	"+" "save" path=ID
+;
