@@ -2,12 +2,11 @@ grammar org.xtext.example.tablefork.TableFork with org.eclipse.xtext.common.Term
 
 generate tableFork "http://www.xtext.org/example/tablefork/TableFork"
 
-
-TableFork:
+Program:
 	load=Load operations+=Operation*; 
 	 
 Load:
-	"+" "load" path=ID 
+	{Load} "load" path=ID 
 ;
 
 Operation:
@@ -32,4 +31,9 @@ Rename:
 
 Save:
 	"+" "save" path=ID
+;
+
+@Override
+terminal ID:
+	'"' ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'/'|' '|'*'|'.')* '"'
 ;

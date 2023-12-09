@@ -2,7 +2,7 @@ load "resources/checkpoint1/data/*.yaml"
     + select
         + fields "FILENAME"
         + from "params"
-            + fields "criterion", "splitter", "ccp_alpha", "min_samples_split"
+            + fields "criterion" "splitter" "ccp_alpha" "min_samples_split"
         * from
     * select
     + rename "FILENAME" to "File"

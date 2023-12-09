@@ -7,7 +7,11 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.xtext.parser.IParser;
+
 import org.xtext.example.tablefork.TableForkStandaloneSetup;
+import org.xtext.example.tablefork.tableFork.Load;
+import org.xtext.example.tablefork.tableFork.Program;
+import org.xtext.example.tablefork.tableFork.impl.ProgramImpl;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -35,13 +39,14 @@ public class Parser {
         }
 
         var treeIterator = resource.getAllContents();
-
-        System.out.println(treeIterator);
-
+        
         while (treeIterator.hasNext()) {
             var element = treeIterator.next();
-            System.out.println("NEXT: " + element);
-            System.out.println(element.getClass());
+
+            if (element instanceof Program program) {
+                System.out.println(program.getLoad());
+                System.out.println(program.getOperations());
+            }
         }
     }
 }
