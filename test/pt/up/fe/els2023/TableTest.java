@@ -12,6 +12,7 @@ import pt.up.fe.els2023.model.table.ValueType;
 import pt.up.fe.els2023.model.table.column.Column;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -74,7 +75,7 @@ public class TableTest {
     }
 
     @Test
-    public void fromContents() {
+    public void fromContents() throws FileNotFoundException {
         Table expected = new Table();
 
         Table a = new Table();
