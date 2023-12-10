@@ -14,8 +14,10 @@ import org.xtext.example.tablefork.tableFork.impl.ProgramImpl;
 import pt.up.fe.els2023.internal.Selection;
 import pt.up.fe.els2023.internal.TableInteraction;
 import pt.up.fe.els2023.model.table.Table;
+import pt.up.fe.els2023.model.table.ValueType;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,6 +55,16 @@ public class Parser {
                 tableInteraction = TableInteraction.load(path);
             }
 
+            if (element instanceof Merge merge){
+                var loads = merge.getLoad().stream().toList();
+                List<TableInteraction> parameterLoads = new ArrayList<>();
+                for(var load: loads){
+                    TableInteraction newLoadInstruction = TableInteraction.load(removeQuotes(load.getPath()));
+                    parameterLoads.add(newLoadInstruction);
+                }
+                tableInteraction = TableInteraction.merge(parameterLoads.toArray(TableInteraction[]::new));
+            }
+
             if (element instanceof Select select) {
                 var fields = select.getFields();
                 var froms = select.getFrom();
@@ -62,10 +74,15 @@ public class Parser {
 
                 if(!types.isEmpty()){
                     for (var type : types){
-                        var typeName = type.getFromType().stream().map(this::removeQuotes).toList();
-
-                        selection = selection
-                                .type()
+                        var typeName = removeQuotes(type.getFromType());
+                        switch (typeName) {
+                            case "DOUBLE" -> selection = selection
+                                    .type(ValueType.DOUBLE);
+                            case "STRING" -> selection = selection
+                                    .type(ValueType.STRING);
+                            case "TABLE" -> selection = selection
+                                    .type(ValueType.TABLE);
+                        }
                     }
                 }
 
@@ -99,6 +116,15 @@ public class Parser {
                 String newName = removeQuotes(rename.getNewName());
                 
                 tableInteraction.rename(fieldName, newName);
+            }
+
+            if (element instanceof  Unstack unstack){
+                tableInteraction.unstack();
+            }
+
+            if (element instanceof  Max max){
+                var maxParam = removeQuotes(max.getMaxName());
+                tableInteraction.max(maxParam);
             }
 
             if (element instanceof Save program) {

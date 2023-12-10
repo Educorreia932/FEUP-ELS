@@ -20,5 +20,5 @@ merge
             + fields "name" "time%"
         * select
         + max "time%"
-+ rename "FOLDER" "Folder"
-+ save "Assignment 1.csv"
++ rename "FOLDER" to "Folder"
++ save "Assignment 2.csv"

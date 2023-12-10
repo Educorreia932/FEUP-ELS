@@ -10,6 +10,6 @@ public class ExternalTest {
 
     @Test
     public void assignment2() {
-        new Parser().parse("test/resources/checkpoint2/config.tablefork");
+        new Parser().parse("test/resources/checkpoint2/data/config.tablefork");
     }
 }
