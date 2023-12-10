@@ -56,25 +56,39 @@ public class Parser {
             if (element instanceof Select select) {
                 var fields = select.getFields();
                 var froms = select.getFrom();
+                var types = select.getType();
                 
                 Selection selection = tableInteraction.select();
-                
-                for (var field : fields) {
-                    var fieldNames = field.getFieldNames().stream().map(this::removeQuotes).toList();
 
-                    selection = selection
-                        .fields(fieldNames.toArray(String[]::new));
+                if(!types.isEmpty()){
+                    for (var type : types){
+                        var typeName = type.getFromType().stream().map(this::removeQuotes).toList();
+
+                        selection = selection
+                                .type()
+                    }
                 }
-                
-                for (var from : froms) {
-                    String fromField = removeQuotes(from.getFromField());
 
-                    var fieldNames = from.getFields().getFieldNames().stream().map(this::removeQuotes).toList();
+                if(!fields.isEmpty()){
+                    for (var field : fields) {
+                        var fieldNames = field.getFieldNames().stream().map(this::removeQuotes).toList();
 
-                    selection = selection
-                        .from(fromField)
-                            .fields(fieldNames.toArray(String[]::new))
-                        .end();
+                        selection = selection
+                                .fields(fieldNames.toArray(String[]::new));
+                    }
+                }
+
+                if(!froms.isEmpty()){
+                    for (var from : froms) {
+                        String fromField = removeQuotes(from.getFromField());
+
+                        var fieldNames = from.getFields().getFieldNames().stream().map(this::removeQuotes).toList();
+
+                        selection = selection
+                                .from(fromField)
+                                .fields(fieldNames.toArray(String[]::new))
+                                .end();
+                    }
                 }
                 
                 tableInteraction = selection.end();

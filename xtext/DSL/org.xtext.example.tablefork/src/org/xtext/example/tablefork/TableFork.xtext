@@ -3,18 +3,21 @@ grammar org.xtext.example.tablefork.TableFork with org.eclipse.xtext.common.Term
 generate tableFork "http://www.xtext.org/example/tablefork/TableFork"
 
 Program:
-	load=Load operations+=Operation*; 
-	 
+    (load=Load operations+=Operation*) | (merge=Merge operations+=Operation*);
+    
+Merge:
+    {Merge} "merge" ("+" load+=Load)+ 
+; 
 Load:
 	{Load} "load" path=ID 
 ;
 
 Operation:
-	 Select | Rename | Save
+	 Select | Rename | Save | Unstack | Max
 ;
 
 Select:
-	{Select} "+" "select" fields+=Fields* from+=From* "*" "select"
+	{Select} "+" "select" type+=Type* fields+=Fields* from+=From* "*" "select"
 ;
 
 Fields:
@@ -25,9 +28,22 @@ From:
 	"+" "from" fromField=ID fields=Fields "*" "from"
 ;
 
+Type:
+    "+" "type" fromType=ID
+;
+
 Rename:
 	"+" "rename" fieldName=ID "to" newName=ID
 ;
+
+Unstack:
+    {Unstack} "+" "unstack" 
+;
+
+Max:
+	"+" "max" maxName=ID
+;
+
 
 Save:
 	"+" "save" path=ID
