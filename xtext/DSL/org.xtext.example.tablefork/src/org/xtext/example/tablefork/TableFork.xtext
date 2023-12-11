@@ -13,7 +13,11 @@ Load:
 ;
 
 Operation:
-	 Select | Rename | Save | Unstack | Max
+	 Select | Rename | Save | Unstack | Max | Slice | Stack | Aggregate | Unravel
+;
+
+ForEach:
+	{ForEach} "+" "forEach" operations+=Operation* "*" "forEach"
 ;
 
 Select:
@@ -44,6 +48,21 @@ Max:
 	"+" "max" maxName=ID
 ;
 
+Slice:
+	"+" "slice" sliceInit=ID "to" sliceEnd=ID
+;
+
+Stack:
+	{Stack} "+" "stack"
+;
+
+Aggregate:
+	"+" "aggregate" aggregateNames+=ID+
+;
+
+Unravel:
+	"+" "unravel"
+;
 
 Save:
 	"+" "save" path=ID

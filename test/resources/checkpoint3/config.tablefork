@@ -22,7 +22,7 @@ merge
             + fields "functions"
         * select
         + unstack
-        + forEach X applies
+        + forEach
             + slice 0 to 3
             + select
                 + fields "name" "time%"
