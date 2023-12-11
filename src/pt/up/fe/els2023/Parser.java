@@ -9,9 +9,12 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.xtext.parser.IParser;
 import org.xtext.example.tablefork.TableForkStandaloneSetup;
 import org.xtext.example.tablefork.tableFork.*;
+import pt.up.fe.els2023.internal.Aggregation;
 import pt.up.fe.els2023.internal.Selection;
 import pt.up.fe.els2023.internal.TableInteraction;
+import pt.up.fe.els2023.model.table.Table;
 import pt.up.fe.els2023.model.table.ValueType;
+import pt.up.fe.els2023.model.table.column.Column;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +43,6 @@ public class Parser {
             throw new RuntimeException(e);
         }
 
-        var treeIterator = resource.getAllContents();
         TableInteraction tableInteraction = TableInteraction.fromTable(null);
 
         parseInstruction(resource.getContents().get(0), tableInteraction);
@@ -52,7 +54,7 @@ public class Parser {
             return parseLoad(load);
 
         if (operation instanceof Merge merge)
-            return parseMerge(merge, tableInteraction);
+            return parseMerge(merge);
 
         if (operation instanceof Select select)
             return parseSelect(select, tableInteraction);
@@ -63,13 +65,32 @@ public class Parser {
         if (operation instanceof Unstack)
             return parseUnstack(tableInteraction);
 
+        if (operation instanceof Stack)
+            return parseStack(tableInteraction);
+
         if (operation instanceof Max max)
             return parseMax(max, tableInteraction);
+
+        if (operation instanceof ForEach forEach)
+            return parseForEach(forEach, tableInteraction);
+
+        if (operation instanceof Aggregate aggregate)
+            return parseAggregate(aggregate, tableInteraction);
+        
+        if (operation instanceof Unravel)
+            return parseUnravel(tableInteraction);
+        
+        if (operation instanceof Slice slice)
+            return parseSlice(slice, tableInteraction);
 
         if (operation instanceof Save save)
             parseSave(save, tableInteraction);
 
         return tableInteraction;
+    }
+    
+    private TableInteraction parseSlice(Slice slice, TableInteraction tableInteraction) {
+        return tableInteraction.slice(slice.getFrom(), slice.getTo());
     }
 
     private TableInteraction parseLoad(Load load) {
@@ -83,7 +104,7 @@ public class Parser {
         return tableInteraction;
     }
 
-    private TableInteraction parseMerge(Merge merge, TableInteraction tableInteraction) {
+    private TableInteraction parseMerge(Merge merge) {
         List<Load> loads = merge.getLoad();
         List<TableInteraction> parameterLoads = new ArrayList<>();
 
@@ -93,9 +114,9 @@ public class Parser {
             parameterLoads.add(newLoadInstruction);
         }
 
-        tableInteraction = TableInteraction.merge(parameterLoads.toArray(TableInteraction[]::new));
-        
-        for (Operation operation : merge.getOperations()) 
+        TableInteraction tableInteraction = TableInteraction.merge(parameterLoads.toArray(TableInteraction[]::new));
+
+        for (Operation operation : merge.getOperations())
             tableInteraction = parseInstruction(operation, tableInteraction);
 
         return tableInteraction;
@@ -138,7 +159,7 @@ public class Parser {
 
             selection = selection
                 .from(fromField)
-                    .fields(fieldNames.toArray(String[]::new))
+                .fields(fieldNames.toArray(String[]::new))
                 .end();
         }
 
@@ -156,9 +177,48 @@ public class Parser {
         return tableInteraction.unstack();
     }
 
+    private TableInteraction parseStack(TableInteraction tableInteraction) {
+        return tableInteraction.stack();
+    }
+
     private TableInteraction parseMax(Max max, TableInteraction tableInteraction) {
         String maxParam = removeQuotes(max.getMaxName());
         return tableInteraction.max(maxParam);
+    }
+
+    private TableInteraction parseForEach(ForEach forEach, TableInteraction tableInteraction) {
+        // Array table
+        for (Column column : tableInteraction.getTable().getColumns()) {
+            Table subTable = (Table) column.getElement(0);
+            TableInteraction interaction = TableInteraction.fromTable(subTable);
+
+            for (Operation operation : forEach.getOperations())
+                interaction = parseInstruction(operation, interaction);
+
+            column.setElement(0, interaction.getTable());
+        }
+
+        return tableInteraction;
+    }
+
+    private TableInteraction parseAggregate(Aggregate aggregate, TableInteraction tableInteraction) {
+        Aggregation[] aggregations = aggregate.getAggregateNames().stream()
+            .map(aggregation -> switch (removeQuotes(aggregation)) {
+                case "SUM" -> Aggregation.SUM;
+                case "AVERAGE" -> Aggregation.AVERAGE;
+                default -> throw new RuntimeException("Invalid aggregation");
+            })
+            .toArray(Aggregation[]::new);
+
+        tableInteraction.aggregate(aggregations);
+
+        return tableInteraction;
+    }
+
+    private TableInteraction parseUnravel(TableInteraction tableInteraction) {
+        tableInteraction.unravel();
+
+        return tableInteraction;
     }
 
     private void parseSave(Save save, TableInteraction tableInteraction) {

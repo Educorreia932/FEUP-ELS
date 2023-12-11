@@ -1,4 +1,4 @@
-merge
++ merge
     + load "checkpoint3/data/**/analysis.yaml"
         + select
             + fields "FOLDER"
@@ -9,6 +9,8 @@ merge
         + rename "FOLDER" to "Folder"
         + rename "iterations" to "Iterations (Dynamic)"
         + rename "calls" to "Calls (Dynamic)"
+    * load
+    
     + load "checkpoint3/data/**/analysis.xml"
         + select
             + from "root.total.results"
@@ -17,6 +19,8 @@ merge
         * select
         + rename "nodes" to "Nodes (Static)"
         + rename "functions" to "Functions (Static)"
+    * load 
+    
     + load "checkpoint3/data/**/profiling.json"
         + select
             + fields "functions"
@@ -32,6 +36,8 @@ merge
         + unstack
         + rename "name" to "Name"
         + rename "time%" to "%"
-    + unravel
-    + aggregate "SUM" "AVERAGE"
-    + save "Assignment 3 - External.csv"
+        + unravel
+    * load
+* merge
++ aggregate "SUM" "AVERAGE"
++ save "Assignment 3 - External.csv"

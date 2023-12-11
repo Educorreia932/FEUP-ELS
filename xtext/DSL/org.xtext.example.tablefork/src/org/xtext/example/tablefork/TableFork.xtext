@@ -15,7 +15,7 @@ Load:
 ;
 
 Operation:
-	 Select | Rename | Save | Unstack | Max | Slice | Stack | Aggregate | Unravel
+	 Select | Rename | Save | Unstack | Stack | Max | Slice | Aggregate | Unravel | ForEach
 ;
 
 ForEach:
@@ -51,7 +51,7 @@ Max:
 ;
 
 Slice:
-	"+" "slice" sliceInit=ID "to" sliceEnd=ID
+	"+" "slice" from=INT "to" to=INT
 ;
 
 Stack:
@@ -63,7 +63,7 @@ Aggregate:
 ;
 
 Unravel:
-	"+" "unravel"
+	{Unravel} "+" "unravel"
 ;
 
 Save:
