@@ -23,18 +23,17 @@ javafx {
 dependencies {
     testImplementation 'junit:junit:4.13.1'
 
-    //! Add your dependencies here    
+    implementation 'org.eclipse.xtext:org.eclipse.xtext:2.33.0'
+    implementation 'org.apache.commons:commons-collections4:4.0'
+    implementation 'org.yaml:snakeyaml:1.28'
+    implementation 'com.opencsv:opencsv:5.7.1'
+    implementation 'com.google.code.gson:gson:2.10.1'
 }
 
 // Add JARs in folder 'libs' as dependencies
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'org.yaml:snakeyaml:1.28'
-    implementation 'org.apache.commons:commons-collections4:4.0'
-    implementation 'com.opencsv:opencsv:5.7.1'
-    implementation 'com.google.code.gson:gson:2.10.1'
 }
-
 
 // Project sources
 sourceSets {
