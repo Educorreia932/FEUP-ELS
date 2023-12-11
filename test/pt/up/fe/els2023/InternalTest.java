@@ -28,7 +28,7 @@ public class InternalTest {
         .rename("min_samples_split", "Min Samples Split")
 
         // Export result
-        .save("Assignment 1.csv");
+        .save("Assignment 1 - Internal.csv");
     }
 
     @Test
@@ -65,7 +65,7 @@ public class InternalTest {
                 .max("time%")
         )
             .rename(Metadata.FOLDER.toString(), "Folder")
-            .save("Assignment 2.csv");
+            .save("Assignment 2 - Internal.csv");
     }
 
     @Test
@@ -120,6 +120,6 @@ public class InternalTest {
         )
             .unravel()
             .aggregate(Aggregation.SUM, Aggregation.AVERAGE)
-            .save("Assignment 3.csv");
+            .save("Assignment 3 - Internal.csv");
     }
 }

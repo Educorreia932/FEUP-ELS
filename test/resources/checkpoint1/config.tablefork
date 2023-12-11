@@ -1,4 +1,4 @@
-load "checkpoint1/data/*.yaml"  
++ load "checkpoint1/data/*.yaml"  
     + select
         + fields "FILENAME"
         + from "params"
@@ -10,4 +10,5 @@ load "checkpoint1/data/*.yaml"
     + rename "splitter" to "Splitter"
     + rename "ccp_alpha" to "CCP Alpha"
     + rename "min_samples_split" to "Min Samples Split"
-+ save "Assignment 1.csv" 
+    + save "Assignment 1 - External.csv" 
+* load

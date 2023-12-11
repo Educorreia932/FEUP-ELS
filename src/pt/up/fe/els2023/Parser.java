@@ -1,19 +1,16 @@
 package pt.up.fe.els2023;
 
 import com.google.inject.Inject;
-
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.xtext.parser.IParser;
-
 import org.xtext.example.tablefork.TableForkStandaloneSetup;
 import org.xtext.example.tablefork.tableFork.*;
-import org.xtext.example.tablefork.tableFork.impl.ProgramImpl;
 import pt.up.fe.els2023.internal.Selection;
 import pt.up.fe.els2023.internal.TableInteraction;
-import pt.up.fe.els2023.model.table.Table;
 import pt.up.fe.els2023.model.table.ValueType;
 
 import java.io.IOException;
@@ -44,95 +41,132 @@ public class Parser {
         }
 
         var treeIterator = resource.getAllContents();
+        TableInteraction tableInteraction = TableInteraction.fromTable(null);
 
-        TableInteraction tableInteraction = TableInteraction.fromTable(new Table());
+        parseInstruction(resource.getContents().get(0), tableInteraction);
+    }
+
+    private TableInteraction parseInstruction(EObject operation, TableInteraction tableInteraction) {
+        System.out.println(operation);
+        if (operation instanceof Load load)
+            return parseLoad(load);
+
+        if (operation instanceof Merge merge)
+            return parseMerge(merge, tableInteraction);
+
+        if (operation instanceof Select select)
+            return parseSelect(select, tableInteraction);
+
+        if (operation instanceof Rename rename)
+            return parseRename(rename, tableInteraction);
+
+        if (operation instanceof Unstack)
+            return parseUnstack(tableInteraction);
+
+        if (operation instanceof Max max)
+            return parseMax(max, tableInteraction);
+
+        if (operation instanceof Save save)
+            parseSave(save, tableInteraction);
+
+        return tableInteraction;
+    }
+
+    private TableInteraction parseLoad(Load load) {
+        String path = removeQuotes(load.getPath());
+
+        TableInteraction tableInteraction = TableInteraction.load(path);
+
+        for (Operation operation : load.getOperations())
+            tableInteraction = parseInstruction(operation, tableInteraction);
+
+        return tableInteraction;
+    }
+
+    private TableInteraction parseMerge(Merge merge, TableInteraction tableInteraction) {
+        List<Load> loads = merge.getLoad();
+        List<TableInteraction> parameterLoads = new ArrayList<>();
+
+        // Parse load instructions
+        for (Load load : loads) {
+            TableInteraction newLoadInstruction = parseLoad(load);
+            parameterLoads.add(newLoadInstruction);
+        }
+
+        tableInteraction = TableInteraction.merge(parameterLoads.toArray(TableInteraction[]::new));
         
-        while (treeIterator.hasNext()) {
-            var element = treeIterator.next();
+        for (Operation operation : merge.getOperations()) 
+            tableInteraction = parseInstruction(operation, tableInteraction);
 
-            if (element instanceof Load load) {
-                String path = removeQuotes(load.getPath());
-                tableInteraction = TableInteraction.load(path);
-            }
+        return tableInteraction;
+    }
 
-            if (element instanceof Merge merge){
-                var loads = merge.getLoad().stream().toList();
-                List<TableInteraction> parameterLoads = new ArrayList<>();
-                for(var load: loads){
-                    TableInteraction newLoadInstruction = TableInteraction.load(removeQuotes(load.getPath()));
-                    parameterLoads.add(newLoadInstruction);
-                }
-                tableInteraction = TableInteraction.merge(parameterLoads.toArray(TableInteraction[]::new));
-            }
+    private TableInteraction parseSelect(Select select, TableInteraction tableInteraction) {
+        var fields = select.getFields();
+        var froms = select.getFrom();
+        var types = select.getType();
 
-            if (element instanceof Select select) {
-                var fields = select.getFields();
-                var froms = select.getFrom();
-                var types = select.getType();
-                
-                Selection selection = tableInteraction.select();
+        Selection selection = tableInteraction.select();
 
-                if(!types.isEmpty()){
-                    for (var type : types){
-                        var typeName = removeQuotes(type.getFromType());
-                        switch (typeName) {
-                            case "DOUBLE" -> selection = selection
-                                    .type(ValueType.DOUBLE);
-                            case "STRING" -> selection = selection
-                                    .type(ValueType.STRING);
-                            case "TABLE" -> selection = selection
-                                    .type(ValueType.TABLE);
-                        }
-                    }
-                }
+        // Type selection
+        for (var type : types) {
+            var typeName = removeQuotes(type.getFromType());
 
-                if(!fields.isEmpty()){
-                    for (var field : fields) {
-                        var fieldNames = field.getFieldNames().stream().map(this::removeQuotes).toList();
-
-                        selection = selection
-                                .fields(fieldNames.toArray(String[]::new));
-                    }
-                }
-
-                if(!froms.isEmpty()){
-                    for (var from : froms) {
-                        String fromField = removeQuotes(from.getFromField());
-
-                        var fieldNames = from.getFields().getFieldNames().stream().map(this::removeQuotes).toList();
-
-                        selection = selection
-                                .from(fromField)
-                                .fields(fieldNames.toArray(String[]::new))
-                                .end();
-                    }
-                }
-                
-                tableInteraction = selection.end();
-            }
-
-            if (element instanceof Rename rename) {
-                String fieldName = removeQuotes(rename.getFieldName());
-                String newName = removeQuotes(rename.getNewName());
-                
-                tableInteraction.rename(fieldName, newName);
-            }
-
-            if (element instanceof  Unstack unstack){
-                tableInteraction.unstack();
-            }
-
-            if (element instanceof  Max max){
-                var maxParam = removeQuotes(max.getMaxName());
-                tableInteraction.max(maxParam);
-            }
-
-            if (element instanceof Save program) {
-                tableInteraction.save("result.csv");
+            switch (typeName) {
+                case "DOUBLE" -> selection = selection
+                    .type(ValueType.DOUBLE);
+                case "STRING" -> selection = selection
+                    .type(ValueType.STRING);
+                case "TABLE" -> selection = selection
+                    .type(ValueType.TABLE);
             }
         }
+
+        // Fields selection
+        for (var field : fields) {
+            var fieldNames = field.getFieldNames().stream().map(this::removeQuotes).toList();
+
+            selection = selection
+                .fields(fieldNames.toArray(String[]::new));
+        }
+
+        // From selection
+        for (var from : froms) {
+            String fromField = removeQuotes(from.getFromField());
+
+            var fieldNames = from.getFields().getFieldNames().stream().map(this::removeQuotes).toList();
+
+            selection = selection
+                .from(fromField)
+                    .fields(fieldNames.toArray(String[]::new))
+                .end();
+        }
+
+        return selection.end();
     }
-    
+
+    private TableInteraction parseRename(Rename rename, TableInteraction tableInteraction) {
+        String fieldName = removeQuotes(rename.getFieldName());
+        String newName = removeQuotes(rename.getNewName());
+
+        return tableInteraction.rename(fieldName, newName);
+    }
+
+    private TableInteraction parseUnstack(TableInteraction tableInteraction) {
+        return tableInteraction.unstack();
+    }
+
+    private TableInteraction parseMax(Max max, TableInteraction tableInteraction) {
+        String maxParam = removeQuotes(max.getMaxName());
+        return tableInteraction.max(maxParam);
+    }
+
+    private void parseSave(Save save, TableInteraction tableInteraction) {
+        String path = removeQuotes(save.getPath());
+
+        tableInteraction.save(path);
+    }
+
     private String removeQuotes(String string) {
         return string.substring(1, string.length() - 1);
     }

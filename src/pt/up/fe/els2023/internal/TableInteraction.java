@@ -25,8 +25,8 @@ public class TableInteraction {
         this.table = table;
     }
 
-    public static TableInteraction fromTable(Table merge) {
-        return new TableInteraction(merge);
+    public static TableInteraction fromTable(Table table) {
+        return new TableInteraction(table);
     }
 
     public static TableInteraction load(String pattern) {

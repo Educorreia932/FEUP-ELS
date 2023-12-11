@@ -3,13 +3,15 @@ grammar org.xtext.example.tablefork.TableFork with org.eclipse.xtext.common.Term
 generate tableFork "http://www.xtext.org/example/tablefork/TableFork"
 
 Program:
-    (load=Load operations+=Operation*) | (merge=Merge operations+=Operation*);
+    Merge | Load
+;
     
 Merge:
-    {Merge} "merge" ("+" load+=Load)+ 
+    {Merge} "+" "merge" load+=Load* "*" "merge" operations+=Operation*
 ; 
+
 Load:
-	{Load} "load" path=ID 
+	{Load} "+" "load" path=ID operations+=Operation* "*" "load"
 ;
 
 Operation:
@@ -70,5 +72,5 @@ Save:
 
 @Override
 terminal ID:
-	'"' ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'/'|' '|'*'|'.')* '"'
+	'"' (.)* '"'
 ;
