@@ -10,24 +10,22 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-public class JSONLoader implements Loader{
+public class JSONLoader implements Loader {
     @Override
     public Map<String, Object> load(File file) {
         Gson gson = new Gson();
 
-        try(FileReader reader = new FileReader(FileUtils.getFilePathWithRootSource(file))) {
-            Type type =new TypeToken<Map<String, Object>>(){}.getType();
+        try (FileReader reader = new FileReader(file)) {
+            Type type = new TypeToken<Map<String, Object>>() {
+            }.getType();
 
-            Map<String, Object> jsonMap = gson.fromJson(reader, type);
+            return gson.fromJson(reader, type);
+        }
 
-            for (Map.Entry<String, Object> entry : jsonMap.entrySet()) {
-                System.out.println(entry.getKey() + ": " + entry.getValue());
-            }
-
-            return jsonMap;
-        } catch(IOException e) {
+        catch (IOException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 }

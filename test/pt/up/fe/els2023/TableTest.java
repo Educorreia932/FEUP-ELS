@@ -1,16 +1,18 @@
 package pt.up.fe.els2023;
 
+import javafx.util.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 import pt.up.fe.els2023.load.YamlLoader;
-import pt.up.fe.els2023.model.table.Column;
 import pt.up.fe.els2023.model.table.Table;
-import pt.up.fe.els2023.utils.FileUtils;
+import pt.up.fe.els2023.model.table.ValueType;
+import pt.up.fe.els2023.model.table.column.Column;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,11 +23,11 @@ public class TableTest {
 
     @Before
     public void initialize() {
-        table = new Table(
-            Arrays.asList(
-                "First name",
-                "Last name",
-                "Age"
+        table = Table.withHeaders(
+            List.of(
+                new Pair<>("First name", ValueType.STRING),
+                new Pair<>("Last name", ValueType.STRING),
+                new Pair<>("Age", ValueType.DOUBLE)
             )
         );
     }
@@ -44,7 +46,7 @@ public class TableTest {
         table.addRow(Arrays.asList("John", "Doe", "22"));
         table.addRow(Arrays.asList("Jane", "Doe", "23"));
 
-        table.addColumn("Height", Arrays.asList("1.75", "1.60"));
+        table.addColumn(Column.ofDoubles("Height", 1.75, 1.60));
 
         assertEquals(2, table.numRows());
         assertEquals(4, table.numColumns());
@@ -73,21 +75,21 @@ public class TableTest {
     }
 
     @Test
-    public void fromContents() {
+    public void fromContents() throws FileNotFoundException {
         Table expected = new Table();
 
         Table a = new Table();
         Table b = new Table();
         Table c = new Table();
 
-        c.addColumn("C", List.of("1"));
-        b.addColumn("B", List.of(c));
-        a.addColumn("0", List.of("0"));
-        a.addColumn("1", List.of(b));
+        c.addColumn(Column.ofDoubles("C", 1.0));
+        b.addColumn(Column.ofTables("B", c));
+        a.addColumn(Column.ofDoubles("0", 0.0));
+        a.addColumn(Column.ofTables("1", b));
 
-        expected.addColumn("A", List.of(a));
-        expected.addColumn("D", List.of("2"));
-        
+        expected.addColumn(Column.ofTables("A", a));
+        expected.addColumn(Column.ofDoubles("D", 2.0));
+
         File file = new File("resources/test.yaml");
         Map<String, Object> contents = new YamlLoader().load(file);
         Table table = Table.fromContents(contents);
