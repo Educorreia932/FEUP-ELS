@@ -1,6 +1,6 @@
 ## Checkpoint 1
 
-The objective of this checkpoint was read [decision_tree_1.yaml](/src/resources/checkpoint1/data/decision_tree_1.yaml), [decision_tree_2.yaml](/src/resources/checkpoint1/data/decision_tree_2.yaml) and [decision_tree_3.yaml](/src/resources/checkpoint1/data/decision_tree_3.yaml) and did the following:
+The objective of this checkpoint was read [decision_tree_1.yaml](/test/resources/checkpoint1/data/decision_tree_1.yaml), [decision_tree_2.yaml](/test/resources/checkpoint1/data/decision_tree_2.yaml) and [decision_tree_3.yaml](/test/resources/checkpoint1/data/decision_tree_3.yaml) and did the following:
 
 - Select all the fields from `params`
 - Create a column for each field

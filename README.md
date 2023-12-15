@@ -7,10 +7,10 @@ For this project, you need to [install Gradle](https://gradle.org/install/)
 [Checkpoint 1](./docs/checkpoints/Checkpoint_1.md): 2023/10/03
 
 
-Checkpoint 2: 2023/11/07
+[Checkpoint 2](./docs/checkpoints/Checkpoint_2.md): 2023/11/07
 
 
-Checkpoint 3: 2023/12/12 
+[Checkpoint 3](./docs/checkpoints/Checkpoint_3.md): 2023/12/12 
 
 
 
