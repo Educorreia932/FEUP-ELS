@@ -1,0 +1,4 @@
+merge contains
+	load with "resources/checkpoint3/data/*/analysis.yaml" that
+		
+	
